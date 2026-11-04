@@ -3,15 +3,71 @@ const answerInput = document.querySelector("#answer");
 const questionText = document.querySelector("#question");
 const feedback = document.querySelector("#feedback");
 const newQuestionButton = document.querySelector("#new-question");
+const operationSelect = document.querySelector("#operation");
+const intro = document.querySelector("#intro");
+
+const operations = {
+  addition: {
+    label: "addition",
+    symbol: "+",
+    makeNumbers() {
+      return [randomNumber(10), randomNumber(10)];
+    },
+    calculate(first, second) {
+      return first + second;
+    },
+  },
+  subtraction: {
+    label: "subtraction",
+    symbol: "−",
+    makeNumbers() {
+      const first = randomNumber(10);
+      const second = randomNumber(10);
+      return [Math.max(first, second), Math.min(first, second)];
+    },
+    calculate(first, second) {
+      return first - second;
+    },
+  },
+  multiplication: {
+    label: "multiplication",
+    symbol: "×",
+    makeNumbers() {
+      return [randomNumber(10), randomNumber(10)];
+    },
+    calculate(first, second) {
+      return first * second;
+    },
+  },
+  division: {
+    label: "division",
+    symbol: "÷",
+    makeNumbers() {
+      const divisor = randomNumber(10);
+      const quotient = randomNumber(10);
+      return [divisor * quotient, divisor];
+    },
+    calculate(first, second) {
+      return first / second;
+    },
+  },
+};
 
 let firstNumber;
 let secondNumber;
+let correctAnswer;
+
+function randomNumber(max) {
+  return Math.floor(Math.random() * max) + 1;
+}
 
 function makeQuestion() {
-  firstNumber = Math.floor(Math.random() * 10) + 1;
-  secondNumber = Math.floor(Math.random() * 10) + 1;
+  const operation = operations[operationSelect.value];
+  [firstNumber, secondNumber] = operation.makeNumbers();
+  correctAnswer = operation.calculate(firstNumber, secondNumber);
 
-  questionText.textContent = `${firstNumber} + ${secondNumber} = ?`;
+  questionText.textContent = `${firstNumber} ${operation.symbol} ${secondNumber} = ?`;
+  intro.textContent = `Let’s practise ${operation.label}!`;
   answerInput.value = "";
   feedback.textContent = "";
   feedback.className = "feedback";
@@ -21,7 +77,6 @@ answerForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const answer = Number(answerInput.value);
-  const correctAnswer = firstNumber + secondNumber;
 
   if (answer === correctAnswer) {
     feedback.textContent = "That’s right! Great job! 🎉";
@@ -33,5 +88,6 @@ answerForm.addEventListener("submit", (event) => {
 });
 
 newQuestionButton.addEventListener("click", makeQuestion);
+operationSelect.addEventListener("change", makeQuestion);
 
 makeQuestion();

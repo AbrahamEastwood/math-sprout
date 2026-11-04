@@ -28,7 +28,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -71,6 +72,26 @@ h1 {
   background: #f8f7ff;
 }
 
+.exercise > label {
+  display: block;
+  margin-bottom: 8px;
+  color: #514c6a;
+  font-weight: 700;
+  text-align: left;
+}
+
+select {
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: 26px;
+  padding: 10px 14px;
+  border: 2px solid #d9d4ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #28234a;
+  font-size: 1rem;
+}
+
 .question {
   margin: 8px 0 28px;
   color: #28234a;
@@ -84,7 +105,7 @@ form {
   text-align: left;
 }
 
-label {
+form label {
   display: block;
   margin-bottom: 8px;
   color: #514c6a;
@@ -109,6 +130,7 @@ input {
 }
 
 input:focus-visible,
+select:focus-visible,
 button:focus-visible {
   outline: 3px solid #f4bb4b;
   outline-offset: 3px;
