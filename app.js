@@ -66,6 +66,7 @@ function clearFeedback() {
 }
 
 function makeQuestion() {
+  answerInput.value = "";
   const selectedOperations = [...operationCheckboxes]
     .filter((checkbox) => checkbox.checked)
     .map((checkbox) => checkbox.value);
@@ -97,7 +98,6 @@ function makeQuestion() {
 
   questionText.textContent = `${firstNumber} ${selectedOperation.symbol} ${secondNumber} = ?`;
   document.querySelector("#intro").textContent = "Choose what you’d like to practise!";
-  answerInput.value = "";
   clearFeedback();
 }
 
