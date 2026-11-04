@@ -53,7 +53,6 @@ const operations = {
 };
 
 let correctAnswer;
-let selectedOperation;
 
 function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
@@ -70,7 +69,6 @@ function makeQuestion() {
     .map((checkbox) => checkbox.value);
 
   if (selectedOperations.length === 0) {
-    selectedOperation = undefined;
     correctAnswer = undefined;
     questionText.textContent = "Choose at least one exercise";
     document.querySelector("#intro").textContent = "Pick one or more types to get started.";
@@ -86,12 +84,12 @@ function makeQuestion() {
   newQuestionButton.disabled = false;
 
   const operationKey = selectedOperations[Math.floor(Math.random() * selectedOperations.length)];
-  selectedOperation = operations[operationKey];
+  const selectedOperation = operations[operationKey];
   const [firstNumber, secondNumber] = selectedOperation.makeNumbers();
   correctAnswer = selectedOperation.calculate(firstNumber, secondNumber);
 
   questionText.textContent = `${firstNumber} ${selectedOperation.symbol} ${secondNumber} = ?`;
-  document.querySelector("#intro").textContent = `Let’s practise ${selectedOperation.label}!`;
+  document.querySelector("#intro").textContent = `Choose what you’d like to practise!`;
   answerInput.value = "";
   clearFeedback();
 }
