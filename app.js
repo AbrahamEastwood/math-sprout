@@ -3,8 +3,7 @@ const answerInput = document.querySelector("#answer");
 const questionText = document.querySelector("#question");
 const feedback = document.querySelector("#feedback");
 const newQuestionButton = document.querySelector("#new-question");
-const operationSelect = document.querySelector("#operation");
-const intro = document.querySelector("#intro");
+const operationCheckboxes = document.querySelectorAll('input[name="operation"]');
 
 const operations = {
   addition: {
@@ -53,28 +52,53 @@ const operations = {
   },
 };
 
-let firstNumber;
-let secondNumber;
 let correctAnswer;
+let selectedOperation;
 
 function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
 }
 
-function makeQuestion() {
-  const operation = operations[operationSelect.value];
-  [firstNumber, secondNumber] = operation.makeNumbers();
-  correctAnswer = operation.calculate(firstNumber, secondNumber);
-
-  questionText.textContent = `${firstNumber} ${operation.symbol} ${secondNumber} = ?`;
-  intro.textContent = `Let’s practise ${operation.label}!`;
-  answerInput.value = "";
+function clearFeedback() {
   feedback.textContent = "";
   feedback.className = "feedback";
 }
 
+function makeQuestion() {
+  const selectedOperations = [...operationCheckboxes]
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+
+  if (selectedOperations.length === 0) {
+    selectedOperation = undefined;
+    correctAnswer = undefined;
+    questionText.textContent = "Choose at least one exercise";
+    document.querySelector("#intro").textContent = "Pick one or more types to get started.";
+    answerInput.disabled = true;
+    answerForm.querySelector("button").disabled = true;
+    newQuestionButton.disabled = true;
+    clearFeedback();
+    return;
+  }
+
+  answerInput.disabled = false;
+  answerForm.querySelector("button").disabled = false;
+  newQuestionButton.disabled = false;
+
+  const operationKey = selectedOperations[Math.floor(Math.random() * selectedOperations.length)];
+  selectedOperation = operations[operationKey];
+  const [firstNumber, secondNumber] = selectedOperation.makeNumbers();
+  correctAnswer = selectedOperation.calculate(firstNumber, secondNumber);
+
+  questionText.textContent = `${firstNumber} ${selectedOperation.symbol} ${secondNumber} = ?`;
+  document.querySelector("#intro").textContent = `Let’s practise ${selectedOperation.label}!`;
+  answerInput.value = "";
+  clearFeedback();
+}
+
 answerForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (correctAnswer === undefined) return;
 
   const answer = Number(answerInput.value);
 
@@ -88,6 +112,6 @@ answerForm.addEventListener("submit", (event) => {
 });
 
 newQuestionButton.addEventListener("click", makeQuestion);
-operationSelect.addEventListener("change", makeQuestion);
+operationCheckboxes.forEach((checkbox) => checkbox.addEventListener("change", makeQuestion));
 
 makeQuestion();

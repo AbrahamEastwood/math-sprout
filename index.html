@@ -14,17 +14,31 @@
       <header class="page-header">
         <p class="eyebrow">A little practice goes a long way</p>
         <h1>Math Sprout <span aria-hidden="true">🌱</span></h1>
-        <p class="intro" id="intro">Let’s practise addition!</p>
+        <p class="intro" id="intro">Choose what you’d like to practise!</p>
       </header>
 
       <section class="exercise" aria-labelledby="question">
-        <label for="operation">Choose an operation</label>
-        <select id="operation" name="operation">
-          <option value="addition">Addition (+)</option>
-          <option value="subtraction">Subtraction (−)</option>
-          <option value="multiplication">Multiplication (×)</option>
-          <option value="division">Division (÷)</option>
-        </select>
+        <fieldset class="operation-picker">
+          <legend>Choose your exercises</legend>
+          <div class="operation-options">
+            <label class="operation-option">
+              <input type="checkbox" name="operation" value="addition" checked />
+              <span>Addition <span aria-hidden="true">(+)</span></span>
+            </label>
+            <label class="operation-option">
+              <input type="checkbox" name="operation" value="subtraction" checked />
+              <span>Subtraction <span aria-hidden="true">(−)</span></span>
+            </label>
+            <label class="operation-option">
+              <input type="checkbox" name="operation" value="multiplication" checked />
+              <span>Multiplication <span aria-hidden="true">(×)</span></span>
+            </label>
+            <label class="operation-option">
+              <input type="checkbox" name="operation" value="division" checked />
+              <span>Division <span aria-hidden="true">(÷)</span></span>
+            </label>
+          </div>
+        </fieldset>
 
         <p class="section-label">What is…?</p>
         <p class="question" id="question" aria-live="polite">0 + 0 = ?</p>
