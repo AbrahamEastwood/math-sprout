@@ -200,20 +200,24 @@ button:focus-visible {
 @keyframes answer-correct-feedback {
   0%, 35%, 70%, 100% {
     border-color: #d9d4ef;
+    border-width: 2px;
   }
 
   18%, 53%, 87% {
     border-color: #21834a;
+    border-width: 4px;
   }
 }
 
 @keyframes answer-incorrect-feedback {
   0%, 35%, 70%, 100% {
     border-color: #d9d4ef;
+    background-color: #fff;
   }
 
   18%, 53%, 87% {
     border-color: #c7473b;
+    background-color: #f7b7b1;
   }
 }
 
