@@ -189,6 +189,38 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+#answer.answer-correct {
+  animation: answer-correct-feedback 700ms ease-in-out;
+}
+
+#answer.answer-incorrect {
+  animation: answer-incorrect-feedback 700ms ease-in-out;
+}
+
+@keyframes answer-correct-feedback {
+  0%, 35%, 70%, 100% {
+    border-color: #d9d4ef;
+    border-width: 2px;
+  }
+
+  18%, 53%, 87% {
+    border-color: #21834a;
+    border-width: 4px;
+  }
+}
+
+@keyframes answer-incorrect-feedback {
+  0%, 35%, 70%, 100% {
+    border-color: #d9d4ef;
+    background-color: #fff;
+  }
+
+  18%, 53%, 87% {
+    border-color: #c7473b;
+    background-color: #f7b7b1;
+  }
+}
+
 button {
   min-height: 60px;
   padding: 14px 18px;
@@ -338,5 +370,225 @@ button:disabled {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.session-button {
+  width: 100%;
+  margin-top: 20px;
+  background: #5b4acb;
+  color: #fff;
+}
+
+.session-button:hover:not(:disabled) {
+  background: #4939b1;
+}
+
+.session-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.score-counter,
+.timer-counter {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #d9d4ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #514c6a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.intro {
+  margin-top: 20px;
+}
+
+.results-dialog {
+  width: min(560px, calc(100% - 24px));
+  max-height: min(82vh, 760px);
+  padding: clamp(20px, 5vw, 32px);
+  border: 1px solid #eeebf7;
+  border-radius: 24px;
+  background: #fff;
+  color: #28234a;
+  box-shadow: 0 20px 60px rgb(52 42 100 / 24%);
+  overflow-y: auto;
+}
+
+.results-dialog::backdrop {
+  background: rgb(40 35 74 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.results-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.results-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.results-header h2 {
+  margin: 0;
+  color: #4a3da0;
+  font-size: 1.65rem;
+}
+
+.mistakes-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #514c6a;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mistakes-filter input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #5b4acb;
+}
+
+.results-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid;
+  border-radius: 16px;
+}
+
+.result-correct {
+  border-color: #b6dfc3;
+  background: #eff9f1;
+  color: #28643a;
+}
+
+.result-incorrect {
+  border-color: #efc1bd;
+  background: #fff2f0;
+  color: #913b35;
+}
+
+.result-details p {
+  margin: 0;
+}
+
+.result-question {
+  color: #28234a;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.result-response,
+.result-answer {
+  margin-top: 3px !important;
+  color: #5d5875;
+  font-size: 0.92rem;
+}
+
+.result-outcome {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 4px;
+}
+
+.result-status {
+  font-weight: 800;
+}
+
+.result-duration {
+  color: #5d5875;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.results-empty {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8f7ff;
+  color: #5d5875;
+  text-align: center;
+  font-weight: 700;
+}
+
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.results-summary p {
+  margin: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f0eeff;
+  color: #514c6a;
+  font-weight: 700;
+}
+
+.results-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #40358c;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.close-results-button {
+  width: 100%;
+  background: #5b4acb;
+  color: #fff;
+}
+
+.close-results-button:hover {
+  background: #4939b1;
+}
+
+@media (max-width: 480px) {
+  .session-metrics,
+  .results-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .results-dialog {
+    border-radius: 18px;
+  }
+
+  .results-header,
+  .result-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .result-outcome {
+    display: flex;
+    justify-content: space-between;
   }
 }
