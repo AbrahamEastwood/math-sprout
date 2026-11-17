@@ -43,10 +43,17 @@
           </div>
         </fieldset>
 
-        <p class="section-label">What is…?</p>
-        <p class="question" id="question" aria-live="polite">0 + 0 = ?</p>
+        <button class="session-button" id="session-toggle" type="button">Start</button>
+        <div class="session-metrics" id="session-metrics" hidden>
+          <p class="score-counter" id="score-counter" aria-live="polite" aria-atomic="true">Score: 0 / 0</p>
+          <p class="timer-counter">Time: <span id="elapsed-time" aria-live="off">00:00</span></p>
+        </div>
+        <p class="intro" id="intro">Choose what you’d like to practise, then press Start.</p>
 
-        <form id="answer-form">
+        <p class="section-label" hidden>What is…?</p>
+        <p class="question" id="question" aria-live="polite" hidden>0 + 0 = ?</p>
+
+        <form id="answer-form" hidden>
           <label for="answer">Your answer</label>
           <div class="answer-row">
             <input
@@ -80,11 +87,28 @@
           </div>
         </form>
 
-        <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
-        <button class="new-question-button" id="new-question" type="button">
+        <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+        <button class="new-question-button" id="new-question" type="button" hidden>
           <span aria-hidden="true">⟳</span> New question
         </button>
       </section>
+
+      <dialog class="results-dialog" id="results-dialog" aria-labelledby="results-title">
+        <div class="results-header">
+          <h2 id="results-title">Session results</h2>
+          <label class="mistakes-filter">
+            <input id="mistakes-only" type="checkbox" />
+            <span>Show mistakes only</span>
+          </label>
+        </div>
+        <ol class="results-list" id="results-list"></ol>
+        <p class="results-empty" id="results-empty" hidden>No recorded exercises yet.</p>
+        <div class="results-summary">
+          <p>Total time <strong id="total-time">00:00</strong></p>
+          <p>Average time <strong id="average-time">00:00</strong> per exercise</p>
+        </div>
+        <button class="close-results-button" id="close-results" type="button">Close</button>
+      </dialog>
 
       <p class="footer-note">Take your time — you’re doing great! <span aria-hidden="true">✨</span></p>
     </main>

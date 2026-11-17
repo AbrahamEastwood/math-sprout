@@ -1,6 +1,6 @@
 # Math Sprout
 
-A lightweight, phone- and tablet-friendly maths practice app for children. The first version is a static addition exercise: questions are generated in the browser, and answers are checked without a backend.
+A lightweight, phone- and tablet-friendly maths practice app for children. Choose arithmetic exercises, then start a timed practice session to track first-answer accuracy and review results with per-exercise, total, and average times. Questions are generated in the browser, and answers are checked without a backend.
 
 ## Run it
 
