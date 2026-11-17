@@ -14,7 +14,6 @@
       <header class="page-header">
         <h1>Math Sprout <span aria-hidden="true">🌱</span></h1>
         <p class="eyebrow">A little practice goes a long way</p>
-        <p class="intro" id="intro">Choose what you’d like to practise!</p>
       </header>
 
       <section class="exercise" aria-labelledby="question">
@@ -23,19 +22,23 @@
           <div class="operation-options">
             <label class="operation-option">
               <input type="checkbox" name="operation" value="addition" checked />
-              <span>Addition <span aria-hidden="true">(+)</span></span>
+              <span class="operation-icon" aria-hidden="true">+</span>
+              <span>Addition</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="subtraction" checked />
-              <span>Subtraction <span aria-hidden="true">(−)</span></span>
+              <span class="operation-icon" aria-hidden="true">−</span>
+              <span>Subtraction</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="multiplication" />
-              <span>Multiplication <span aria-hidden="true">(×)</span></span>
+              <span class="operation-icon" aria-hidden="true">×</span>
+              <span>Multiplication</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="division" />
-              <span>Division <span aria-hidden="true">(÷)</span></span>
+              <span class="operation-icon" aria-hidden="true">÷</span>
+              <span>Division</span>
             </label>
           </div>
         </fieldset>
@@ -49,20 +52,37 @@
             <input
               id="answer"
               name="answer"
-              type="number"
-              inputmode="numeric"
-              step="1"
+              type="text"
+              inputmode="none"
               autocomplete="off"
               required
               aria-describedby="feedback"
             />
-            <button class="check-button" type="submit">Check answer</button>
+            <button class="check-button" id="check-answer" type="submit">
+              <span class="button-icon" aria-hidden="true">↵</span>
+              <span id="check-label">Check answer</span>
+            </button>
+          </div>
+
+          <div class="number-pad" role="group" aria-label="Number pad">
+            <button class="number-key" type="button" data-digit="1" aria-label="1">1</button>
+            <button class="number-key" type="button" data-digit="2" aria-label="2">2</button>
+            <button class="number-key" type="button" data-digit="3" aria-label="3">3</button>
+            <button class="number-key" type="button" data-digit="4" aria-label="4">4</button>
+            <button class="number-key" type="button" data-digit="5" aria-label="5">5</button>
+            <button class="number-key" type="button" data-digit="6" aria-label="6">6</button>
+            <button class="number-key" type="button" data-digit="7" aria-label="7">7</button>
+            <button class="number-key" type="button" data-digit="8" aria-label="8">8</button>
+            <button class="number-key" type="button" data-digit="9" aria-label="9">9</button>
+            <button class="number-key utility-key" id="clear-answer" type="button" aria-label="Clear answer">C</button>
+            <button class="number-key" type="button" data-digit="0" aria-label="0">0</button>
+            <button class="number-key utility-key" id="delete-digit" type="button" aria-label="Delete last digit">⌫</button>
           </div>
         </form>
 
         <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
         <button class="new-question-button" id="new-question" type="button">
-          New question
+          <span aria-hidden="true">⟳</span> New question
         </button>
       </section>
 

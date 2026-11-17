@@ -33,7 +33,7 @@ input {
 }
 
 .practice-card {
-  width: min(100%, 560px);
+  width: min(100%, 620px);
   padding: clamp(24px, 6vw, 48px);
   border: 1px solid #eeebf7;
   border-radius: 28px;
@@ -46,7 +46,7 @@ input {
 .section-label {
   margin: 0;
   color: #706b8a;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -67,11 +67,11 @@ h1 {
 .intro {
   margin: 0;
   color: #5d5875;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .exercise {
-  margin-top: 36px;
+  margin-top: 32px;
   padding: clamp(20px, 5vw, 32px);
   border-radius: 22px;
   background: #f8f7ff;
@@ -86,28 +86,30 @@ h1 {
 }
 
 .operation-picker legend {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #514c6a;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
 .operation-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .operation-option {
-  min-height: 52px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 12px;
   border: 2px solid #d9d4ef;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #fff;
   color: #514c6a;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -118,11 +120,23 @@ h1 {
 }
 
 .operation-option input {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   margin: 0;
   accent-color: #5b4acb;
   flex: 0 0 auto;
+}
+
+.operation-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #eeebff;
+  color: #5141b2;
+  font-size: 1.3rem;
+  font-weight: 800;
 }
 
 .operation-option:focus-within {
@@ -131,9 +145,9 @@ h1 {
 }
 
 .question {
-  margin: 8px 0 28px;
+  margin: 8px 0 24px;
   color: #28234a;
-  font-size: clamp(2.2rem, 10vw, 4rem);
+  font-size: clamp(2.4rem, 11vw, 4.2rem);
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.2;
@@ -145,26 +159,28 @@ form {
 
 form label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: #514c6a;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .answer-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 #answer {
   width: 100%;
   min-width: 0;
-  min-height: 56px;
-  padding: 10px 14px;
+  min-height: 68px;
+  padding: 12px 16px;
   border: 2px solid #d9d4ef;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #fff;
   color: #28234a;
-  font-size: 1.25rem;
+  font-size: 1.65rem;
+  font-weight: 800;
 }
 
 #answer:focus-visible,
@@ -174,13 +190,15 @@ button:focus-visible {
 }
 
 button {
-  min-height: 52px;
-  padding: 12px 18px;
+  min-height: 60px;
+  padding: 14px 18px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
+  font-size: 1.05rem;
   font-weight: 800;
   transition: transform 120ms ease, background-color 120ms ease;
+  touch-action: manipulation;
 }
 
 button:active {
@@ -193,7 +211,12 @@ button:disabled {
 }
 
 .check-button {
+  min-width: 170px;
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: #5b4acb;
   color: #fff;
 }
@@ -202,9 +225,40 @@ button:disabled {
   background: #4939b1;
 }
 
+.button-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.number-key {
+  min-height: 62px;
+  border: 2px solid #d9d4ef;
+  background: #fff;
+  color: #39325e;
+  font-size: 1.5rem;
+}
+
+.number-key:hover:not(:disabled) {
+  border-color: #786bd3;
+  background: #f0eeff;
+}
+
+.utility-key {
+  background: #eeebff;
+  color: #5141b2;
+}
+
 .feedback {
   min-height: 1.7em;
   margin: 18px 0 12px;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
@@ -226,15 +280,39 @@ button:disabled {
   background: #d7eddd;
 }
 
+.new-question-button span {
+  margin-right: 6px;
+  font-size: 1.3rem;
+}
+
 .footer-note {
   margin: 24px 0 0;
   color: #706b8a;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   body {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .practice-card {
+    padding: 22px 16px;
+  }
+
+  .exercise {
+    padding: 18px 14px;
+  }
+
+  .operation-option {
+    gap: 7px;
+    padding: 9px;
+    font-size: 0.9rem;
+  }
+
+  .operation-icon {
+    width: 26px;
+    height: 26px;
   }
 
   .answer-row {
@@ -243,6 +321,14 @@ button:disabled {
 
   .check-button {
     width: 100%;
+  }
+
+  .number-pad {
+    gap: 8px;
+  }
+
+  .number-key {
+    min-height: 58px;
   }
 }
 
