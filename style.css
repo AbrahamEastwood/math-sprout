@@ -64,6 +64,74 @@ h1 {
   gap: 8px;
 }
 
+.username-form {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #e5e1f4;
+  border-radius: 18px;
+  background: #fbfaff;
+  text-align: left;
+}
+
+.username-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #514c6a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.username-row {
+  display: flex;
+  gap: 8px;
+}
+
+#username {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 2px solid #d9d4ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #28234a;
+  font-weight: 700;
+}
+
+#username:focus-visible {
+  outline: 3px solid #f4bb4b;
+  outline-offset: 3px;
+}
+
+.save-username-button,
+.clear-username-button {
+  min-height: 52px;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+}
+
+.save-username-button {
+  background: #5b4acb;
+  color: #fff;
+}
+
+.clear-username-button {
+  background: #eeebff;
+  color: #5141b2;
+}
+
+.username-status {
+  min-height: 1.35em;
+  margin: 8px 0 0;
+  color: #21834a;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.username-status-error {
+  color: #9a5d00;
+}
+
 .intro {
   margin: 0;
   color: #5d5875;
@@ -361,6 +429,19 @@ button:disabled {
 
   .number-key {
     min-height: 58px;
+  }
+
+  .username-row {
+    flex-wrap: wrap;
+  }
+
+  #username {
+    flex-basis: 100%;
+  }
+
+  .save-username-button,
+  .clear-username-button {
+    flex: 1;
   }
 }
 
