@@ -189,6 +189,34 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+#answer.answer-correct {
+  animation: answer-correct-feedback 700ms ease-in-out;
+}
+
+#answer.answer-incorrect {
+  animation: answer-incorrect-feedback 700ms ease-in-out;
+}
+
+@keyframes answer-correct-feedback {
+  0%, 35%, 70%, 100% {
+    border-color: #d9d4ef;
+  }
+
+  18%, 53%, 87% {
+    border-color: #21834a;
+  }
+}
+
+@keyframes answer-incorrect-feedback {
+  0%, 35%, 70%, 100% {
+    border-color: #d9d4ef;
+  }
+
+  18%, 53%, 87% {
+    border-color: #c7473b;
+  }
+}
+
 button {
   min-height: 60px;
   padding: 14px 18px;
@@ -338,6 +366,7 @@ button:disabled {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 

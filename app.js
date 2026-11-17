@@ -73,7 +73,6 @@ let sessionStartedAt = null;
 let sessionElapsed = 0;
 let sessionActive = false;
 let timerInterval;
-let answerWasCorrect = false;
 
 function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
@@ -156,7 +155,6 @@ function createQuestion() {
     isCorrect: null,
     startedAt: performance.now(),
   };
-  answerWasCorrect = false;
   answerInput.value = "";
   questionText.textContent = `${question} = ?`;
   checkLabel.textContent = "Check answer";
@@ -180,7 +178,12 @@ function finishCurrentExercise(skipped, finishedAt = performance.now()) {
     duration: finishedAt - currentExercise.startedAt,
   });
   currentExercise = null;
-  answerWasCorrect = false;
+}
+
+function showAnswerFeedback(isCorrect) {
+  answerInput.classList.remove("answer-correct", "answer-incorrect");
+  void answerInput.offsetWidth;
+  answerInput.classList.add(isCorrect ? "answer-correct" : "answer-incorrect");
 }
 
 function startSession() {
@@ -217,10 +220,10 @@ function renderResults() {
     question.className = "result-question";
     question.textContent = `${result.question} = ?`;
 
-    const firstAnswer = document.createElement("p");
-    firstAnswer.className = "result-response";
-    firstAnswer.textContent =
-      result.firstAnswer === null ? "Skipped — no answer submitted" : `First answer: ${result.firstAnswer}`;
+    const answer = document.createElement("p");
+    answer.className = "result-response";
+    answer.textContent =
+      result.firstAnswer === null ? "Skipped — no answer submitted" : `Answer: ${result.firstAnswer}`;
 
     const correctAnswer = document.createElement("p");
     correctAnswer.className = "result-answer";
@@ -237,7 +240,10 @@ function renderResults() {
     duration.className = "result-duration";
     duration.textContent = formatDuration(result.duration);
 
-    details.append(question, firstAnswer, correctAnswer);
+    details.append(question, answer);
+    if (!result.isCorrect && result.firstAnswer !== null) {
+      details.append(correctAnswer);
+    }
     outcome.append(status, duration);
     item.append(details, outcome);
     resultsList.append(item);
@@ -285,13 +291,6 @@ answerForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!sessionActive || !currentExercise) return;
 
-  if (answerWasCorrect) {
-    finishCurrentExercise(false);
-    createQuestion();
-    updateScore();
-    return;
-  }
-
   const value = answerInput.value.trim();
   if (value === "" || !/^-?\d+$/.test(value)) {
     feedback.textContent = "Type or tap your answer first.";
@@ -300,21 +299,15 @@ answerForm.addEventListener("submit", (event) => {
   }
 
   const answer = Number(value);
-  if (currentExercise.firstAnswer === null) {
-    currentExercise.firstAnswer = answer;
-    currentExercise.isCorrect = answer === currentExercise.correctAnswer;
-    updateScore();
-  }
-
-  if (answer === currentExercise.correctAnswer) {
-    answerWasCorrect = true;
-    feedback.textContent = "That’s right! Great job! Press Enter again for the next one.";
-    feedback.className = "feedback feedback-correct";
-    checkLabel.textContent = "Next exercise";
-  } else {
-    feedback.textContent = "Not quite — try again! You’ve got this.";
-    feedback.className = "feedback feedback-try-again";
-  }
+  currentExercise.firstAnswer = answer;
+  currentExercise.isCorrect = answer === currentExercise.correctAnswer;
+  const isCorrect = currentExercise.isCorrect;
+  showAnswerFeedback(isCorrect);
+  finishCurrentExercise(false);
+  createQuestion();
+  feedback.textContent = isCorrect ? "That’s right! Great job!" : "Not quite.";
+  feedback.className = `feedback ${isCorrect ? "feedback-correct" : "feedback-try-again"}`;
+  updateScore();
 });
 
 numberPadButtons.forEach((button) => {
@@ -322,7 +315,7 @@ numberPadButtons.forEach((button) => {
   if (!digit) return;
 
   button.addEventListener("click", () => {
-    if (!sessionActive || answerWasCorrect) return;
+    if (!sessionActive) return;
     answerInput.value += digit;
     answerInput.focus({ preventScroll: true });
     clearFeedback();
@@ -330,14 +323,14 @@ numberPadButtons.forEach((button) => {
 });
 
 deleteDigitButton.addEventListener("click", () => {
-  if (!sessionActive || answerWasCorrect) return;
+  if (!sessionActive) return;
   answerInput.value = answerInput.value.slice(0, -1);
   answerInput.focus({ preventScroll: true });
   clearFeedback();
 });
 
 clearAnswerButton.addEventListener("click", () => {
-  if (!sessionActive || answerWasCorrect) return;
+  if (!sessionActive) return;
   answerInput.value = "";
   answerInput.focus({ preventScroll: true });
   clearFeedback();
@@ -345,7 +338,6 @@ clearAnswerButton.addEventListener("click", () => {
 
 answerInput.addEventListener("input", () => {
   if (!sessionActive) return;
-  if (answerWasCorrect) answerWasCorrect = false;
   checkLabel.textContent = "Check answer";
   clearFeedback();
 });
