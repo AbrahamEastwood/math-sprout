@@ -88,6 +88,80 @@
           </div>
         </fieldset>
 
+        <div class="exercise-settings">
+          <fieldset class="exercise-settings-group" id="addition-settings" hidden>
+            <legend data-i18n="additionLimits">Addition limits</legend>
+            <div class="limit-options">
+              <label>
+                <span data-i18n="maximumResult">Maximum result</span>
+                <input id="addition-max-result" type="number" min="2" max="1000" step="1" value="20" />
+              </label>
+              <label>
+                <span data-i18n="maximumLeftNumber">Maximum left number</span>
+                <input id="addition-max-left" type="number" min="1" max="1000" step="1" value="10" />
+              </label>
+              <label>
+                <span data-i18n="maximumRightNumber">Maximum right number</span>
+                <input id="addition-max-right" type="number" min="1" max="1000" step="1" value="10" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="exercise-settings-group" id="subtraction-settings" hidden>
+            <legend data-i18n="subtractionLimits">Subtraction limits</legend>
+            <div class="limit-options">
+              <label>
+                <span data-i18n="maximumResult">Maximum result</span>
+                <input id="subtraction-max-result" type="number" min="0" max="1000" step="1" value="10" />
+              </label>
+              <label>
+                <span data-i18n="maximumLeftNumber">Maximum left number</span>
+                <input id="subtraction-max-left" type="number" min="1" max="1000" step="1" value="10" />
+              </label>
+              <label>
+                <span data-i18n="maximumRightNumber">Maximum right number</span>
+                <input id="subtraction-max-right" type="number" min="1" max="1000" step="1" value="10" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="exercise-settings-group" id="multiplication-settings" hidden>
+            <legend data-i18n="multiplicationTables">Multiplication tables</legend>
+            <div class="table-options">
+              <label class="table-option"><span>1</span><input type="checkbox" name="table-multiplication" value="1" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>2</span><input type="checkbox" name="table-multiplication" value="2" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>3</span><input type="checkbox" name="table-multiplication" value="3" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>4</span><input type="checkbox" name="table-multiplication" value="4" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>5</span><input type="checkbox" name="table-multiplication" value="5" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>6</span><input type="checkbox" name="table-multiplication" value="6" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>7</span><input type="checkbox" name="table-multiplication" value="7" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>8</span><input type="checkbox" name="table-multiplication" value="8" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>9</span><input type="checkbox" name="table-multiplication" value="9" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>10</span><input type="checkbox" name="table-multiplication" value="10" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>11</span><input type="checkbox" name="table-multiplication" value="11" /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>12</span><input type="checkbox" name="table-multiplication" value="12" /><span class="table-switch" aria-hidden="true"></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="exercise-settings-group" id="division-settings" hidden>
+            <legend data-i18n="divisionTables">Division tables</legend>
+            <div class="table-options">
+              <label class="table-option"><span>1</span><input type="checkbox" name="table-division" value="1" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>2</span><input type="checkbox" name="table-division" value="2" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>3</span><input type="checkbox" name="table-division" value="3" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>4</span><input type="checkbox" name="table-division" value="4" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>5</span><input type="checkbox" name="table-division" value="5" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>6</span><input type="checkbox" name="table-division" value="6" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>7</span><input type="checkbox" name="table-division" value="7" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>8</span><input type="checkbox" name="table-division" value="8" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>9</span><input type="checkbox" name="table-division" value="9" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>10</span><input type="checkbox" name="table-division" value="10" checked /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>11</span><input type="checkbox" name="table-division" value="11" /><span class="table-switch" aria-hidden="true"></span></label>
+              <label class="table-option"><span>12</span><input type="checkbox" name="table-division" value="12" /><span class="table-switch" aria-hidden="true"></span></label>
+            </div>
+          </fieldset>
+        </div>
+
         <button class="session-button" id="session-toggle" type="button" data-i18n="start">Start</button>
         <div class="session-metrics" id="session-metrics" hidden>
           <p class="score-counter" id="score-counter" aria-live="polite" aria-atomic="true">Score: 0 / 0</p>

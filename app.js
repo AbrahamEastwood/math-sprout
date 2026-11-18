@@ -9,6 +9,25 @@ const checkButton = document.querySelector("#check-answer");
 const checkLabel = document.querySelector("#check-label");
 const operationPicker = document.querySelector(".operation-picker");
 const operationCheckboxes = document.querySelectorAll('input[name="operation"]');
+const operationSettings = {
+  addition: document.querySelector("#addition-settings"),
+  subtraction: document.querySelector("#subtraction-settings"),
+  multiplication: document.querySelector("#multiplication-settings"),
+  division: document.querySelector("#division-settings"),
+};
+const limitInputs = {
+  addition: {
+    maxResult: document.querySelector("#addition-max-result"),
+    maxLeft: document.querySelector("#addition-max-left"),
+    maxRight: document.querySelector("#addition-max-right"),
+  },
+  subtraction: {
+    maxResult: document.querySelector("#subtraction-max-result"),
+    maxLeft: document.querySelector("#subtraction-max-left"),
+    maxRight: document.querySelector("#subtraction-max-right"),
+  },
+};
+const tableCheckboxes = document.querySelectorAll('input[name^="table-"]');
 const numberPadButtons = document.querySelectorAll(".number-key");
 const deleteDigitButton = document.querySelector("#delete-digit");
 const clearAnswerButton = document.querySelector("#clear-answer");
@@ -53,6 +72,13 @@ const translations = {
     subtraction: "Subtraction",
     multiplication: "Multiplication",
     division: "Division",
+    additionLimits: "Addition limits",
+    subtractionLimits: "Subtraction limits",
+    maximumResult: "Maximum result",
+    maximumLeftNumber: "Maximum left number",
+    maximumRightNumber: "Maximum right number",
+    multiplicationTables: "Multiplication tables",
+    divisionTables: "Division tables",
     start: "Start",
     stop: "Stop",
     score: "Score: {correct} / {total}",
@@ -108,6 +134,13 @@ const translations = {
     subtraction: "Aftrekken",
     multiplication: "Vermenigvuldigen",
     division: "Delen",
+    additionLimits: "Grenzen voor optellen",
+    subtractionLimits: "Grenzen voor aftrekken",
+    maximumResult: "Maximaal antwoord",
+    maximumLeftNumber: "Maximaal getal links",
+    maximumRightNumber: "Maximaal getal rechts",
+    multiplicationTables: "Tafels van vermenigvuldiging",
+    divisionTables: "Deeltafels",
     start: "Start",
     stop: "Stoppen",
     score: "Score: {correct} / {total}",
@@ -152,8 +185,10 @@ const translations = {
 const operations = {
   addition: {
     symbol: "+",
-    makeNumbers() {
-      return [randomNumber(10), randomNumber(10)];
+    makeNumbers({ maxResult, maxLeft, maxRight }) {
+      const first = randomNumber(Math.min(maxLeft, maxResult - 1));
+      const second = randomNumber(Math.min(maxRight, maxResult - first));
+      return [first, second];
     },
     calculate(first, second) {
       return first + second;
@@ -161,10 +196,10 @@ const operations = {
   },
   subtraction: {
     symbol: "−",
-    makeNumbers() {
-      const first = randomNumber(10);
-      const second = randomNumber(10);
-      return [Math.max(first, second), Math.min(first, second)];
+    makeNumbers({ maxResult, maxLeft, maxRight }) {
+      const second = randomNumber(Math.min(maxRight, maxLeft));
+      const first = randomNumberBetween(second, Math.min(maxLeft, second + maxResult));
+      return [first, second];
     },
     calculate(first, second) {
       return first - second;
@@ -172,8 +207,8 @@ const operations = {
   },
   multiplication: {
     symbol: "×",
-    makeNumbers() {
-      return [randomNumber(10), randomNumber(10)];
+    makeNumbers({ tables }) {
+      return [randomNumber(10), randomChoice(tables)];
     },
     calculate(first, second) {
       return first * second;
@@ -181,8 +216,8 @@ const operations = {
   },
   division: {
     symbol: "÷",
-    makeNumbers() {
-      const divisor = randomNumber(10);
+    makeNumbers({ tables }) {
+      const divisor = randomChoice(tables);
       const quotient = randomNumber(10);
       return [divisor * quotient, divisor];
     },
@@ -300,10 +335,39 @@ function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
 }
 
+function randomNumberBetween(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomChoice(values) {
+  return values[Math.floor(Math.random() * values.length)];
+}
+
 function selectedOperations() {
   return [...operationCheckboxes]
     .filter((checkbox) => checkbox.checked)
     .map((checkbox) => checkbox.value);
+}
+
+function selectedTables(operationKey) {
+  return [...document.querySelectorAll(`input[name="table-${operationKey}"]:checked`)]
+    .map((checkbox) => Number(checkbox.value));
+}
+
+function settingsForOperation(operationKey) {
+  if (operationKey === "multiplication" || operationKey === "division") {
+    return { tables: selectedTables(operationKey) };
+  }
+  return Object.fromEntries(
+    Object.entries(limitInputs[operationKey]).map(([key, input]) => [key, input.valueAsNumber]),
+  );
+}
+
+function operationSettingsAreValid(operationKey) {
+  if (operationKey === "multiplication" || operationKey === "division") {
+    return selectedTables(operationKey).length > 0;
+  }
+  return Object.values(limitInputs[operationKey]).every((input) => input.validity.valid);
 }
 
 function clearFeedback() {
@@ -427,8 +491,14 @@ function updateScore() {
 
 function updateSessionControls() {
   sessionToggleButton.textContent = translate(sessionActive ? "stop" : "start");
-  sessionToggleButton.disabled = !sessionActive && selectedOperations().length === 0;
+  const selected = selectedOperations();
+  sessionToggleButton.disabled =
+    !sessionActive && (selected.length === 0 || !selected.every(operationSettingsAreValid));
   operationPicker.disabled = sessionActive;
+  Object.entries(operationSettings).forEach(([operationKey, settings]) => {
+    settings.hidden = !selected.includes(operationKey);
+    settings.disabled = sessionActive;
+  });
   sessionMetrics.hidden = sessionStartedAt === null;
 }
 
@@ -436,7 +506,7 @@ function createQuestion() {
   const selected = selectedOperations();
   const operationKey = selected[Math.floor(Math.random() * selected.length)];
   const selectedOperation = operations[operationKey];
-  const [firstNumber, secondNumber] = selectedOperation.makeNumbers();
+  const [firstNumber, secondNumber] = selectedOperation.makeNumbers(settingsForOperation(operationKey));
   const expectedAnswer = selectedOperation.calculate(firstNumber, secondNumber);
   const question = `${firstNumber} ${selectedOperation.symbol} ${secondNumber}`;
 
@@ -654,6 +724,13 @@ sessionToggleButton.addEventListener("click", () => {
 
 operationCheckboxes.forEach((checkbox) => {
   checkbox.addEventListener("change", updateSessionControls);
+});
+
+tableCheckboxes.forEach((checkbox) => {
+  checkbox.addEventListener("change", updateSessionControls);
+});
+Object.values(limitInputs).forEach((inputs) => {
+  Object.values(inputs).forEach((input) => input.addEventListener("input", updateSessionControls));
 });
 
 mistakesOnlyCheckbox.addEventListener("change", renderResults);
