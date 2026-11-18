@@ -13,6 +13,7 @@ import {
   hasExerciseResult,
 } from "./practice/session.js";
 import { translations } from "./translations.js";
+import { renderSessionResults } from "./ui/results.js";
 
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer");
@@ -468,63 +469,17 @@ function startSession() {
 }
 
 function renderResults() {
-  resultsList.replaceChildren();
-  const showMistakesOnly = mistakesOnlyCheckbox.checked;
-
-  results.forEach((result) => {
-    if (showMistakesOnly && result.isCorrect) return;
-
-    const item = document.createElement("li");
-    item.className = `result-item ${result.isCorrect ? "result-correct" : "result-incorrect"}`;
-
-    const details = document.createElement("div");
-    details.className = "result-details";
-
-    const question = document.createElement("p");
-    question.className = "result-question";
-    question.textContent = `${result.question} = ?`;
-
-    const answer = document.createElement("p");
-    answer.className = "result-response";
-    answer.textContent =
-      result.firstAnswer === null
-        ? translate("skippedAnswer")
-        : translate("answer", { answer: result.firstAnswer });
-
-    const correctAnswer = document.createElement("p");
-    correctAnswer.className = "result-answer";
-    correctAnswer.textContent = translate("correctAnswer", { answer: result.correctAnswer });
-
-    const outcome = document.createElement("div");
-    outcome.className = "result-outcome";
-
-    const status = document.createElement("span");
-    status.className = "result-status";
-    status.textContent = translate(result.isCorrect ? "correct" : "incorrect");
-
-    const duration = document.createElement("span");
-    duration.className = "result-duration";
-    duration.textContent = formatDuration(result.duration);
-
-    details.append(question, answer);
-    if (!result.isCorrect && result.firstAnswer !== null) {
-      details.append(correctAnswer);
-    }
-    outcome.append(status, duration);
-    item.append(details, outcome);
-    resultsList.append(item);
+  renderSessionResults({
+    results,
+    showMistakesOnly: mistakesOnlyCheckbox.checked,
+    resultsList,
+    resultsEmpty,
+    totalTimeText,
+    averageTimeText,
+    sessionElapsed,
+    translate,
+    formatDuration,
   });
-
-  const visibleResults = resultsList.children.length;
-  resultsEmpty.hidden = visibleResults > 0;
-  resultsEmpty.textContent = results.length === 0
-    ? translate("noExercises")
-    : translate("noMistakes");
-
-  const totalExerciseTime = results.reduce((total, result) => total + result.duration, 0);
-  const averageExerciseTime = results.length ? totalExerciseTime / results.length : 0;
-  totalTimeText.textContent = formatDuration(sessionElapsed);
-  averageTimeText.textContent = formatDuration(averageExerciseTime);
 }
 
 function stopSession() {
