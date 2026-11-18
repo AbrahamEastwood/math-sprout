@@ -23,6 +23,11 @@ const mistakesOnlyCheckbox = document.querySelector("#mistakes-only");
 const totalTimeText = document.querySelector("#total-time");
 const averageTimeText = document.querySelector("#average-time");
 const closeResultsButton = document.querySelector("#close-results");
+const usernameForm = document.querySelector("#username-form");
+const usernameInput = document.querySelector("#username");
+const clearUsernameButton = document.querySelector("#clear-username");
+const usernameStatus = document.querySelector("#username-status");
+const resultsTitle = document.querySelector("#results-title");
 
 const operations = {
   addition: {
@@ -73,6 +78,8 @@ let sessionStartedAt = null;
 let sessionElapsed = 0;
 let sessionActive = false;
 let timerInterval;
+const usernameStorageKey = "math-sprout.username";
+let username = "";
 
 function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
@@ -117,6 +124,73 @@ function formatDuration(milliseconds) {
 function updateTimer() {
   const milliseconds = sessionActive ? performance.now() - sessionStartedAt : sessionElapsed;
   elapsedTime.textContent = formatDuration(milliseconds);
+}
+
+function updatePersonalizedText() {
+  const name = username ? `, ${username}` : "";
+  resultsTitle.textContent = username ? `${username}'s session results` : "Session results";
+
+  if (!sessionActive) {
+    intro.textContent = sessionStartedAt === null
+      ? "Choose what you’d like to practise, then press Start."
+      : `Session complete${name}! Press Start to practise again.`;
+  }
+}
+
+function saveUsername(value) {
+  const trimmedName = value.trim();
+
+  if (trimmedName === "") {
+    usernameInput.value = "";
+    usernameStatus.textContent = "Enter a username or clear it to use a generic name.";
+    usernameStatus.className = "username-status username-status-error";
+    return;
+  }
+
+  username = trimmedName;
+  usernameInput.value = username;
+  clearUsernameButton.hidden = false;
+  try {
+    localStorage.setItem(usernameStorageKey, username);
+    usernameStatus.textContent = `Saved as ${username}.`;
+  } catch {
+    usernameStatus.textContent = `Using ${username} for this visit.`;
+  }
+  usernameStatus.className = "username-status";
+  updatePersonalizedText();
+}
+
+function clearUsername() {
+  username = "";
+  usernameInput.value = "";
+  clearUsernameButton.hidden = true;
+  try {
+    localStorage.removeItem(usernameStorageKey);
+    usernameStatus.textContent = "Username cleared.";
+  } catch {
+    usernameStatus.textContent = "Username cleared for this visit.";
+  }
+  usernameStatus.className = "username-status";
+  updatePersonalizedText();
+}
+
+function loadUsername() {
+  try {
+    const savedUsername = localStorage.getItem(usernameStorageKey);
+    if (savedUsername) {
+      username = savedUsername.trim();
+      if (username) {
+        usernameInput.value = username;
+        clearUsernameButton.hidden = false;
+        usernameStatus.textContent = `Welcome back, ${username}!`;
+      } else {
+        localStorage.removeItem(usernameStorageKey);
+      }
+    }
+  } catch {
+    usernameStatus.textContent = "";
+  }
+  updatePersonalizedText();
 }
 
 function currentExerciseHasResult() {
@@ -277,7 +351,9 @@ function stopSession() {
   }
 
   setPracticeVisible(false);
-  intro.textContent = "Session complete! Press Start to practise again.";
+  intro.textContent = username
+    ? `Session complete, ${username}! Press Start to practise again.`
+    : "Session complete! Press Start to practise again.";
   intro.hidden = false;
   updateSessionControls();
   updateScore();
@@ -305,7 +381,9 @@ answerForm.addEventListener("submit", (event) => {
   showAnswerFeedback(isCorrect);
   finishCurrentExercise(false);
   createQuestion();
-  feedback.textContent = isCorrect ? "That’s right! Great job!" : "Not quite.";
+  feedback.textContent = isCorrect
+    ? username ? `That’s right, ${username}! Great job!` : "That’s right! Great job!"
+    : username ? `Not quite, ${username}. Keep going!` : "Not quite.";
   feedback.className = `feedback ${isCorrect ? "feedback-correct" : "feedback-try-again"}`;
   updateScore();
 });
@@ -363,7 +441,13 @@ operationCheckboxes.forEach((checkbox) => {
 
 mistakesOnlyCheckbox.addEventListener("change", renderResults);
 closeResultsButton.addEventListener("click", () => resultsDialog.close());
+usernameForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveUsername(usernameInput.value);
+});
+clearUsernameButton.addEventListener("click", clearUsername);
 
 setPracticeVisible(false);
 updateSessionControls();
 updateScore();
+loadUsername();

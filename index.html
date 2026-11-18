@@ -16,6 +16,23 @@
         <p class="eyebrow">A little practice goes a long way</p>
       </header>
 
+      <form class="username-form" id="username-form">
+        <label for="username">What should we call you?</label>
+        <div class="username-row">
+          <input
+            id="username"
+            name="username"
+            type="text"
+            maxlength="24"
+            autocomplete="nickname"
+            placeholder="Add a username"
+          />
+          <button class="save-username-button" type="submit">Save</button>
+          <button class="clear-username-button" id="clear-username" type="button" hidden>Clear</button>
+        </div>
+        <p class="username-status" id="username-status" role="status" aria-live="polite"></p>
+      </form>
+
       <section class="exercise" aria-labelledby="question">
         <fieldset class="operation-picker">
           <legend>Choose your exercises</legend>
