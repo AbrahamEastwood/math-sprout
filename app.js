@@ -28,7 +28,11 @@ const usernameInput = document.querySelector("#username");
 const clearUsernameButton = document.querySelector("#clear-username");
 const usernameStatus = document.querySelector("#username-status");
 const resultsTitle = document.querySelector("#results-title");
-const languageSelect = document.querySelector("#language-select");
+const languageToggle = document.querySelector("#language-toggle");
+const languageOptionsMenu = document.querySelector("#language-options");
+const languageOptions = document.querySelectorAll(".language-option");
+const selectedLanguage = document.querySelector("#selected-language");
+const selectedLanguageFlags = document.querySelectorAll("[data-selected-language-flag]");
 const descriptionMeta = document.querySelector('meta[name="description"]');
 
 const translations = {
@@ -37,6 +41,8 @@ const translations = {
     metaDescription: "A friendly place for kids to practise their maths.",
     tagline: "A little practice goes a long way",
     languageLabel: "Language",
+    englishLanguage: "English",
+    dutchLanguage: "Dutch",
     usernamePrompt: "What should we call you?",
     usernamePlaceholder: "Add a username",
     save: "Save",
@@ -90,6 +96,8 @@ const translations = {
     metaDescription: "Een fijne plek waar kinderen hun rekenvaardigheden oefenen.",
     tagline: "Een beetje oefenen helpt je vooruit",
     languageLabel: "Taal",
+    englishLanguage: "Engels",
+    dutchLanguage: "Nederlands",
     usernamePrompt: "Hoe mogen we je noemen?",
     usernamePlaceholder: "Vul een gebruikersnaam in",
     save: "Opslaan",
@@ -192,7 +200,7 @@ let timerInterval;
 const usernameStorageKey = "math-sprout.username";
 const languageStorageKey = "math-sprout.language";
 let username = "";
-let language = "en";
+let language = "nl-BE";
 let currentFeedback = null;
 let currentUsernameStatus = null;
 
@@ -213,6 +221,7 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
     element.setAttribute("aria-label", translate(element.dataset.i18nAriaLabel));
   });
+  updateLanguagePicker();
   if (currentFeedback) {
     feedback.textContent = translate(currentFeedback.key, currentFeedback.values);
   }
@@ -239,10 +248,32 @@ function setFeedback(key, values = {}, className = "feedback") {
   feedback.className = className;
 }
 
+function updateLanguagePicker() {
+  selectedLanguage.textContent = translate(language === "en" ? "englishLanguage" : "dutchLanguage");
+  selectedLanguageFlags.forEach((flag) => {
+    flag.classList.toggle("language-flag-hidden", flag.dataset.selectedLanguageFlag !== language);
+  });
+  languageOptions.forEach((option) => {
+    option.setAttribute("aria-pressed", String(option.dataset.language === language));
+  });
+}
+
+function setLanguageMenuOpen(isOpen, focusIndex = 0) {
+  languageOptionsMenu.hidden = !isOpen;
+  languageToggle.setAttribute("aria-expanded", String(isOpen));
+  if (isOpen) languageOptions[focusIndex].focus();
+}
+
+function closeLanguageMenu(restoreFocus = false) {
+  if (languageOptionsMenu.hidden) return;
+  setLanguageMenuOpen(false);
+  if (restoreFocus) languageToggle.focus();
+}
+
 function setLanguage(value, persist = true) {
   language = value === "nl-BE" ? "nl-BE" : "en";
-  languageSelect.value = language;
   applyTranslations();
+  closeLanguageMenu(true);
   if (persist) {
     try {
       localStorage.setItem(languageStorageKey, language);
@@ -261,7 +292,6 @@ function loadLanguage() {
   } catch {
     language = "en";
   }
-  languageSelect.value = language;
   applyTranslations();
 }
 
@@ -630,7 +660,35 @@ usernameForm.addEventListener("submit", (event) => {
   saveUsername(usernameInput.value);
 });
 clearUsernameButton.addEventListener("click", clearUsername);
-languageSelect.addEventListener("change", () => setLanguage(languageSelect.value));
+languageToggle.addEventListener("click", () => {
+  setLanguageMenuOpen(languageOptionsMenu.hidden);
+});
+languageToggle.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    setLanguageMenuOpen(true, event.key === "ArrowUp" ? languageOptions.length - 1 : 0);
+  }
+});
+languageOptions.forEach((option, index) => {
+  option.addEventListener("click", () => setLanguage(option.dataset.language));
+  option.addEventListener("keydown", (event) => {
+    let nextIndex;
+    if (event.key === "ArrowDown") nextIndex = (index + 1) % languageOptions.length;
+    if (event.key === "ArrowUp") nextIndex = (index - 1 + languageOptions.length) % languageOptions.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = languageOptions.length - 1;
+    if (nextIndex !== undefined) {
+      event.preventDefault();
+      languageOptions[nextIndex].focus();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      closeLanguageMenu(true);
+    }
+  });
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".language-picker")) closeLanguageMenu();
+});
 
 setPracticeVisible(false);
 updateSessionControls();
