@@ -529,6 +529,23 @@ button:disabled {
   font-size: 1.65rem;
 }
 
+.results-header-title {
+  display: grid;
+  gap: 8px;
+}
+
+.results-score {
+  width: fit-content;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #d9d4ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #514c6a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
 .mistakes-filter {
   display: inline-flex;
   align-items: center;
