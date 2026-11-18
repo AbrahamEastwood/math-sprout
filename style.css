@@ -251,19 +251,28 @@ h1 {
 
 .operation-options {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
+.operation-card {
+  border: 2px solid #d9d4ef;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.operation-card:has(.operation-option input:checked) {
+  border-color: #786bd3;
+}
+
 .operation-option {
-  min-height: 68px;
+  position: relative;
+  min-height: 60px;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px;
-  border: 2px solid #d9d4ef;
-  border-radius: 16px;
-  background: #fff;
+  border-radius: 14px;
   color: #514c6a;
   font-size: 1rem;
   font-weight: 800;
@@ -271,17 +280,15 @@ h1 {
 }
 
 .operation-option:has(input:checked) {
-  border-color: #786bd3;
   background: #f0eeff;
   color: #40358c;
 }
 
 .operation-option input {
-  width: 22px;
-  height: 22px;
-  margin: 0;
-  accent-color: #5b4acb;
-  flex: 0 0 auto;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .operation-icon {
@@ -301,20 +308,14 @@ h1 {
   outline-offset: 3px;
 }
 
-.exercise-settings {
-  display: grid;
-  gap: 16px;
-  margin-top: 16px;
-  text-align: left;
-}
-
 .exercise-settings-group {
   min-width: 0;
-  margin: 0;
+  margin: 0 12px 12px;
   padding: 16px;
   border: 1px solid #d9d4ef;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fff;
+  text-align: left;
 }
 
 .exercise-settings-group legend {
@@ -386,7 +387,8 @@ h1 {
   opacity: 0;
 }
 
-.table-switch {
+.table-switch,
+.operation-switch {
   width: 34px;
   height: 20px;
   flex: 0 0 auto;
@@ -396,7 +398,8 @@ h1 {
   transition: background-color 120ms ease;
 }
 
-.table-switch::after {
+.table-switch::after,
+.operation-switch::after {
   width: 14px;
   height: 14px;
   display: block;
@@ -407,11 +410,13 @@ h1 {
   transition: transform 120ms ease;
 }
 
-.table-option input:checked + .table-switch {
+.table-option input:checked + .table-switch,
+.operation-option input:checked ~ .operation-switch {
   background: #5b4acb;
 }
 
-.table-option input:checked + .table-switch::after {
+.table-option input:checked + .table-switch::after,
+.operation-option input:checked ~ .operation-switch::after {
   transform: translateX(14px);
 }
 
@@ -419,6 +424,11 @@ h1 {
   border-color: #786bd3;
   background: #f0eeff;
   color: #40358c;
+}
+
+.operation-option:focus-within {
+  outline: 3px solid #f4bb4b;
+  outline-offset: 3px;
 }
 
 .question {
