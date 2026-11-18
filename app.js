@@ -28,6 +28,125 @@ const usernameInput = document.querySelector("#username");
 const clearUsernameButton = document.querySelector("#clear-username");
 const usernameStatus = document.querySelector("#username-status");
 const resultsTitle = document.querySelector("#results-title");
+const languageToggle = document.querySelector("#language-toggle");
+const languageOptionsMenu = document.querySelector("#language-options");
+const languageOptions = document.querySelectorAll(".language-option");
+const selectedLanguage = document.querySelector("#selected-language");
+const selectedLanguageFlags = document.querySelectorAll("[data-selected-language-flag]");
+const descriptionMeta = document.querySelector('meta[name="description"]');
+
+const translations = {
+  en: {
+    pageTitle: "Math Sprout — Maths Practice",
+    metaDescription: "A friendly place for kids to practise their maths.",
+    tagline: "A little practice goes a long way",
+    languageLabel: "Language",
+    englishLanguage: "English",
+    dutchLanguage: "Dutch",
+    usernamePrompt: "What should we call you?",
+    usernamePlaceholder: "Add a username",
+    save: "Save",
+    clear: "Clear",
+    chooseExercises: "Choose your exercises",
+    addition: "Addition",
+    subtraction: "Subtraction",
+    multiplication: "Multiplication",
+    division: "Division",
+    start: "Start",
+    stop: "Stop",
+    score: "Score: {correct} / {total}",
+    time: "Time",
+    intro: "Choose what you’d like to practise, then press Start.",
+    questionPrompt: "What is…?",
+    answerLabel: "Your answer",
+    checkAnswer: "Check answer",
+    numberPad: "Number pad",
+    clearAnswer: "Clear answer",
+    deleteLastDigit: "Delete last digit",
+    newQuestion: "New question",
+    sessionResults: "Session results",
+    personalizedResults: "{name}’s session results",
+    showMistakesOnly: "Show mistakes only",
+    noExercises: "No recorded exercises yet.",
+    noMistakes: "No mistakes in this session.",
+    totalTime: "Total time",
+    averageTime: "Average time",
+    perExercise: "per exercise",
+    close: "Close",
+    footerNote: "Take your time — you’re doing great!",
+    enterUsername: "Enter a username or clear it to use a generic name.",
+    savedAs: "Saved as {name}.",
+    usingForVisit: "Using {name} for this visit.",
+    usernameCleared: "Username cleared.",
+    usernameClearedForVisit: "Username cleared for this visit.",
+    welcomeBack: "Welcome back, {name}!",
+    languageForVisit: "Language will be used for this visit.",
+    sessionComplete: "Session complete{name}! Press Start to practise again.",
+    typeAnswer: "Type or tap your answer first.",
+    correctFeedback: "That’s right{name}! Great job!",
+    incorrectFeedback: "Not quite{name}. Keep going!",
+    skippedAnswer: "Skipped — no answer submitted",
+    answer: "Answer: {answer}",
+    correctAnswer: "Correct answer: {answer}",
+    correct: "Correct",
+    incorrect: "Incorrect",
+  },
+  "nl-BE": {
+    pageTitle: "Math Sprout — Oefen je rekenen",
+    metaDescription: "Een fijne plek waar kinderen hun rekenvaardigheden oefenen.",
+    tagline: "Een beetje oefenen helpt je vooruit",
+    languageLabel: "Taal",
+    englishLanguage: "Engels",
+    dutchLanguage: "Nederlands",
+    usernamePrompt: "Hoe mogen we je noemen?",
+    usernamePlaceholder: "Vul een gebruikersnaam in",
+    save: "Opslaan",
+    clear: "Wissen",
+    chooseExercises: "Kies je oefeningen",
+    addition: "Optellen",
+    subtraction: "Aftrekken",
+    multiplication: "Vermenigvuldigen",
+    division: "Delen",
+    start: "Start",
+    stop: "Stoppen",
+    score: "Score: {correct} / {total}",
+    time: "Tijd",
+    intro: "Kies wat je wilt oefenen en druk daarna op Start.",
+    questionPrompt: "Hoeveel is…?",
+    answerLabel: "Jouw antwoord",
+    checkAnswer: "Controleer je antwoord",
+    numberPad: "Cijfertoetsen",
+    clearAnswer: "Antwoord wissen",
+    deleteLastDigit: "Laatste cijfer wissen",
+    newQuestion: "Nieuwe vraag",
+    sessionResults: "Resultaten van de sessie",
+    personalizedResults: "Resultaten van {name}",
+    showMistakesOnly: "Toon alleen fouten",
+    noExercises: "Er zijn nog geen oefeningen geregistreerd.",
+    noMistakes: "Geen fouten in deze sessie.",
+    totalTime: "Totale tijd",
+    averageTime: "Gemiddelde tijd",
+    perExercise: "per oefening",
+    close: "Sluiten",
+    footerNote: "Neem je tijd — je doet het geweldig!",
+    enterUsername: "Vul een gebruikersnaam in of wis die om een algemene naam te gebruiken.",
+    savedAs: "Opgeslagen als {name}.",
+    usingForVisit: "{name} wordt alleen deze keer gebruikt.",
+    usernameCleared: "Gebruikersnaam gewist.",
+    usernameClearedForVisit: "Gebruikersnaam voor deze keer gewist.",
+    welcomeBack: "Welkom terug, {name}!",
+    languageForVisit: "De taal wordt alleen deze keer gebruikt.",
+    sessionComplete: "Sessie afgelopen{name}! Druk op Start om opnieuw te oefenen.",
+    typeAnswer: "Typ of tik eerst je antwoord.",
+    correctFeedback: "Dat klopt{name}! Goed gedaan!",
+    incorrectFeedback: "Niet helemaal{name}. Blijf proberen!",
+    skippedAnswer: "Overgeslagen — geen antwoord ingevuld",
+    answer: "Antwoord: {answer}",
+    correctAnswer: "Juiste antwoord: {answer}",
+    correct: "Juist",
+    incorrect: "Fout",
+  },
+};
 
 const operations = {
   addition: {
@@ -79,7 +198,102 @@ let sessionElapsed = 0;
 let sessionActive = false;
 let timerInterval;
 const usernameStorageKey = "math-sprout.username";
+const languageStorageKey = "math-sprout.language";
 let username = "";
+let language = "nl-BE";
+let currentFeedback = null;
+let currentUsernameStatus = null;
+
+function translate(key, values = {}) {
+  return translations[language][key].replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
+}
+
+function applyTranslations() {
+  document.documentElement.lang = language;
+  document.title = translate("pageTitle");
+  descriptionMeta.content = translate("metaDescription");
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = translate(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = translate(element.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", translate(element.dataset.i18nAriaLabel));
+  });
+  updateLanguagePicker();
+  if (currentFeedback) {
+    feedback.textContent = translate(currentFeedback.key, currentFeedback.values);
+  }
+  if (currentUsernameStatus) {
+    usernameStatus.textContent = translate(currentUsernameStatus.key, currentUsernameStatus.values);
+  }
+  updatePersonalizedText();
+  updateSessionControls();
+  updateScore();
+  if (resultsDialog.open) renderResults();
+}
+
+function setUsernameStatus(key, values = {}, isError = false) {
+  currentUsernameStatus = { key, values };
+  usernameStatus.textContent = translate(key, values);
+  usernameStatus.className = isError
+    ? "username-status username-status-error"
+    : "username-status";
+}
+
+function setFeedback(key, values = {}, className = "feedback") {
+  currentFeedback = { key, values };
+  feedback.textContent = translate(key, values);
+  feedback.className = className;
+}
+
+function updateLanguagePicker() {
+  selectedLanguage.textContent = translate(language === "en" ? "englishLanguage" : "dutchLanguage");
+  selectedLanguageFlags.forEach((flag) => {
+    flag.classList.toggle("language-flag-hidden", flag.dataset.selectedLanguageFlag !== language);
+  });
+  languageOptions.forEach((option) => {
+    option.setAttribute("aria-pressed", String(option.dataset.language === language));
+  });
+}
+
+function setLanguageMenuOpen(isOpen, focusIndex = 0) {
+  languageOptionsMenu.hidden = !isOpen;
+  languageToggle.setAttribute("aria-expanded", String(isOpen));
+  if (isOpen) languageOptions[focusIndex].focus();
+}
+
+function closeLanguageMenu(restoreFocus = false) {
+  if (languageOptionsMenu.hidden) return;
+  setLanguageMenuOpen(false);
+  if (restoreFocus) languageToggle.focus();
+}
+
+function setLanguage(value, persist = true) {
+  language = value === "nl-BE" ? "nl-BE" : "en";
+  applyTranslations();
+  closeLanguageMenu(true);
+  if (persist) {
+    try {
+      localStorage.setItem(languageStorageKey, language);
+    } catch {
+      setUsernameStatus("languageForVisit");
+    }
+  }
+}
+
+function loadLanguage() {
+  try {
+    const savedLanguage = localStorage.getItem(languageStorageKey);
+    if (savedLanguage === "en" || savedLanguage === "nl-BE") {
+      language = savedLanguage;
+    }
+  } catch {
+    language = "en";
+  }
+  applyTranslations();
+}
 
 function randomNumber(max) {
   return Math.floor(Math.random() * max) + 1;
@@ -92,6 +306,7 @@ function selectedOperations() {
 }
 
 function clearFeedback() {
+  currentFeedback = null;
   feedback.textContent = "";
   feedback.className = "feedback";
 }
@@ -128,12 +343,14 @@ function updateTimer() {
 
 function updatePersonalizedText() {
   const name = username ? `, ${username}` : "";
-  resultsTitle.textContent = username ? `${username}'s session results` : "Session results";
+  resultsTitle.textContent = username
+    ? translate("personalizedResults", { name: username })
+    : translate("sessionResults");
 
   if (!sessionActive) {
     intro.textContent = sessionStartedAt === null
-      ? "Choose what you’d like to practise, then press Start."
-      : `Session complete${name}! Press Start to practise again.`;
+      ? translate("intro")
+      : translate("sessionComplete", { name });
   }
 }
 
@@ -142,8 +359,7 @@ function saveUsername(value) {
 
   if (trimmedName === "") {
     usernameInput.value = "";
-    usernameStatus.textContent = "Enter a username or clear it to use a generic name.";
-    usernameStatus.className = "username-status username-status-error";
+    setUsernameStatus("enterUsername", {}, true);
     return;
   }
 
@@ -152,11 +368,10 @@ function saveUsername(value) {
   clearUsernameButton.hidden = false;
   try {
     localStorage.setItem(usernameStorageKey, username);
-    usernameStatus.textContent = `Saved as ${username}.`;
+    setUsernameStatus("savedAs", { name: username });
   } catch {
-    usernameStatus.textContent = `Using ${username} for this visit.`;
+    setUsernameStatus("usingForVisit", { name: username });
   }
-  usernameStatus.className = "username-status";
   updatePersonalizedText();
 }
 
@@ -166,11 +381,10 @@ function clearUsername() {
   clearUsernameButton.hidden = true;
   try {
     localStorage.removeItem(usernameStorageKey);
-    usernameStatus.textContent = "Username cleared.";
+    setUsernameStatus("usernameCleared");
   } catch {
-    usernameStatus.textContent = "Username cleared for this visit.";
+    setUsernameStatus("usernameClearedForVisit");
   }
-  usernameStatus.className = "username-status";
   updatePersonalizedText();
 }
 
@@ -182,12 +396,13 @@ function loadUsername() {
       if (username) {
         usernameInput.value = username;
         clearUsernameButton.hidden = false;
-        usernameStatus.textContent = `Welcome back, ${username}!`;
+        setUsernameStatus("welcomeBack", { name: username });
       } else {
         localStorage.removeItem(usernameStorageKey);
       }
     }
   } catch {
+    currentUsernameStatus = null;
     usernameStatus.textContent = "";
   }
   updatePersonalizedText();
@@ -204,11 +419,11 @@ function updateScore() {
     results.filter((result) => result.isCorrect).length +
     Number(currentIsRecorded && currentExercise.isCorrect);
 
-  scoreCounter.textContent = `Score: ${correctCount} / ${exerciseCount}`;
+  scoreCounter.textContent = translate("score", { correct: correctCount, total: exerciseCount });
 }
 
 function updateSessionControls() {
-  sessionToggleButton.textContent = sessionActive ? "Stop" : "Start";
+  sessionToggleButton.textContent = translate(sessionActive ? "stop" : "start");
   sessionToggleButton.disabled = !sessionActive && selectedOperations().length === 0;
   operationPicker.disabled = sessionActive;
   sessionMetrics.hidden = sessionStartedAt === null;
@@ -231,7 +446,7 @@ function createQuestion() {
   };
   answerInput.value = "";
   questionText.textContent = `${question} = ?`;
-  checkLabel.textContent = "Check answer";
+  checkLabel.textContent = translate("checkAnswer");
   clearFeedback();
   answerInput.focus({ preventScroll: true });
 }
@@ -297,18 +512,20 @@ function renderResults() {
     const answer = document.createElement("p");
     answer.className = "result-response";
     answer.textContent =
-      result.firstAnswer === null ? "Skipped — no answer submitted" : `Answer: ${result.firstAnswer}`;
+      result.firstAnswer === null
+        ? translate("skippedAnswer")
+        : translate("answer", { answer: result.firstAnswer });
 
     const correctAnswer = document.createElement("p");
     correctAnswer.className = "result-answer";
-    correctAnswer.textContent = `Correct answer: ${result.correctAnswer}`;
+    correctAnswer.textContent = translate("correctAnswer", { answer: result.correctAnswer });
 
     const outcome = document.createElement("div");
     outcome.className = "result-outcome";
 
     const status = document.createElement("span");
     status.className = "result-status";
-    status.textContent = result.isCorrect ? "Correct" : "Incorrect";
+    status.textContent = translate(result.isCorrect ? "correct" : "incorrect");
 
     const duration = document.createElement("span");
     duration.className = "result-duration";
@@ -325,10 +542,9 @@ function renderResults() {
 
   const visibleResults = resultsList.children.length;
   resultsEmpty.hidden = visibleResults > 0;
-  resultsEmpty.textContent =
-    results.length === 0
-      ? "No recorded exercises yet."
-      : "No mistakes in this session.";
+  resultsEmpty.textContent = results.length === 0
+    ? translate("noExercises")
+    : translate("noMistakes");
 
   const totalExerciseTime = results.reduce((total, result) => total + result.duration, 0);
   const averageExerciseTime = results.length ? totalExerciseTime / results.length : 0;
@@ -351,9 +567,7 @@ function stopSession() {
   }
 
   setPracticeVisible(false);
-  intro.textContent = username
-    ? `Session complete, ${username}! Press Start to practise again.`
-    : "Session complete! Press Start to practise again.";
+  intro.textContent = translate("sessionComplete", { name: username ? `, ${username}` : "" });
   intro.hidden = false;
   updateSessionControls();
   updateScore();
@@ -369,8 +583,7 @@ answerForm.addEventListener("submit", (event) => {
 
   const value = answerInput.value.trim();
   if (value === "" || !/^-?\d+$/.test(value)) {
-    feedback.textContent = "Type or tap your answer first.";
-    feedback.className = "feedback feedback-try-again";
+    setFeedback("typeAnswer", {}, "feedback feedback-try-again");
     return;
   }
 
@@ -381,10 +594,11 @@ answerForm.addEventListener("submit", (event) => {
   showAnswerFeedback(isCorrect);
   finishCurrentExercise(false);
   createQuestion();
-  feedback.textContent = isCorrect
-    ? username ? `That’s right, ${username}! Great job!` : "That’s right! Great job!"
-    : username ? `Not quite, ${username}. Keep going!` : "Not quite.";
-  feedback.className = `feedback ${isCorrect ? "feedback-correct" : "feedback-try-again"}`;
+  setFeedback(
+    isCorrect ? "correctFeedback" : "incorrectFeedback",
+    { name: username ? `, ${username}` : "" },
+    `feedback ${isCorrect ? "feedback-correct" : "feedback-try-again"}`,
+  );
   updateScore();
 });
 
@@ -416,7 +630,7 @@ clearAnswerButton.addEventListener("click", () => {
 
 answerInput.addEventListener("input", () => {
   if (!sessionActive) return;
-  checkLabel.textContent = "Check answer";
+  checkLabel.textContent = translate("checkAnswer");
   clearFeedback();
 });
 
@@ -446,8 +660,38 @@ usernameForm.addEventListener("submit", (event) => {
   saveUsername(usernameInput.value);
 });
 clearUsernameButton.addEventListener("click", clearUsername);
+languageToggle.addEventListener("click", () => {
+  setLanguageMenuOpen(languageOptionsMenu.hidden);
+});
+languageToggle.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    setLanguageMenuOpen(true, event.key === "ArrowUp" ? languageOptions.length - 1 : 0);
+  }
+});
+languageOptions.forEach((option, index) => {
+  option.addEventListener("click", () => setLanguage(option.dataset.language));
+  option.addEventListener("keydown", (event) => {
+    let nextIndex;
+    if (event.key === "ArrowDown") nextIndex = (index + 1) % languageOptions.length;
+    if (event.key === "ArrowUp") nextIndex = (index - 1 + languageOptions.length) % languageOptions.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = languageOptions.length - 1;
+    if (nextIndex !== undefined) {
+      event.preventDefault();
+      languageOptions[nextIndex].focus();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      closeLanguageMenu(true);
+    }
+  });
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".language-picker")) closeLanguageMenu();
+});
 
 setPracticeVisible(false);
 updateSessionControls();
 updateScore();
+loadLanguage();
 loadUsername();
