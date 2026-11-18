@@ -139,7 +139,7 @@ const translations = {
     maximumResult: "Maximaal antwoord",
     maximumLeftNumber: "Maximaal getal links",
     maximumRightNumber: "Maximaal getal rechts",
-    multiplicationTables: "Tafels van vermenigvuldiging",
+    multiplicationTables: "Maaltafels",
     divisionTables: "Deeltafels",
     start: "Start",
     stop: "Stoppen",
