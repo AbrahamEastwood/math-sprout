@@ -56,6 +56,31 @@ const languageOptions = document.querySelectorAll(".language-option");
 const selectedLanguage = document.querySelector("#selected-language");
 const selectedLanguageFlags = document.querySelectorAll("[data-selected-language-flag]");
 const descriptionMeta = document.querySelector('meta[name="description"]');
+const themePickerButton = document.querySelector("#theme-picker-button");
+const themeDialog = document.querySelector("#theme-dialog");
+const themeDialogClose = document.querySelector("#theme-dialog-close");
+const themeCancelButton = document.querySelector("#theme-cancel");
+const themeSaveButton = document.querySelector("#theme-save");
+const themeSegments = [...document.querySelectorAll(".theme-segment")];
+const themeModeSwitch = document.querySelector("#theme-mode-switch");
+const themeModeLabel = document.querySelector("#theme-mode-label");
+const themeStatus = document.querySelector("#theme-status");
+
+const themeColors = [
+  { id: "red", wheelColor: "#d97880" },
+  { id: "orange", wheelColor: "#e49b63" },
+  { id: "yellow", wheelColor: "#d9bd55" },
+  { id: "green", wheelColor: "#70aa83" },
+  { id: "blue", wheelColor: "#6d96c6" },
+  { id: "indigo", wheelColor: "#8076b5" },
+  { id: "violet", wheelColor: "#a18ad0" },
+];
+const themeStorageKey = "math-sprout.theme";
+let selectedTheme = {
+  color: document.documentElement.dataset.themeColor,
+  mode: document.documentElement.dataset.themeMode,
+};
+let pendingTheme = { ...selectedTheme };
 
 const translations = {
   en: {
@@ -65,6 +90,20 @@ const translations = {
     languageLabel: "Language",
     englishLanguage: "English",
     dutchLanguage: "Dutch",
+    chooseThemeColor: "Choose theme color",
+    themeSettings: "Theme settings",
+    themeColors: "Theme colors",
+    themeRed: "Red",
+    themeOrange: "Orange",
+    themeYellow: "Yellow",
+    themeGreen: "Green",
+    themeBlue: "Blue",
+    themeIndigo: "Indigo",
+    themeViolet: "Violet",
+    lightMode: "Light",
+    darkMode: "Dark mode",
+    cancel: "Cancel",
+    themeStorageUnavailable: "Theme applies for this visit, but could not be saved in this browser.",
     usernamePrompt: "What should we call you?",
     usernamePlaceholder: "Add a username",
     save: "Save",
@@ -127,6 +166,20 @@ const translations = {
     languageLabel: "Taal",
     englishLanguage: "Engels",
     dutchLanguage: "Nederlands",
+    chooseThemeColor: "Kies een themakleur",
+    themeSettings: "Thema-instellingen",
+    themeColors: "Themakleuren",
+    themeRed: "Rood",
+    themeOrange: "Oranje",
+    themeYellow: "Geel",
+    themeGreen: "Groen",
+    themeBlue: "Blauw",
+    themeIndigo: "Indigo",
+    themeViolet: "Violet",
+    lightMode: "Licht",
+    darkMode: "Donkere modus",
+    cancel: "Annuleren",
+    themeStorageUnavailable: "Het thema geldt voor dit bezoek, maar kon niet in deze browser worden opgeslagen.",
     usernamePrompt: "Hoe mogen we je noemen?",
     usernamePlaceholder: "Vul een gebruikersnaam in",
     save: "Opslaan",
@@ -260,7 +313,11 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
     element.setAttribute("aria-label", translate(element.dataset.i18nAriaLabel));
   });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    element.title = translate(element.dataset.i18nTitle);
+  });
   updateLanguagePicker();
+  updateThemeModeLabel();
   if (currentFeedback) {
     feedback.textContent = translate(currentFeedback.key, currentFeedback.values);
   }
@@ -295,6 +352,71 @@ function updateLanguagePicker() {
   languageOptions.forEach((option) => {
     option.setAttribute("aria-pressed", String(option.dataset.language === language));
   });
+}
+
+function updateThemeModeLabel() {
+  themeModeLabel.textContent = translate(pendingTheme.mode === "dark" ? "darkMode" : "lightMode");
+}
+
+function updateThemeSelection() {
+  const center = 120;
+  const radius = 110;
+  themeSegments.forEach((segment, index) => {
+    const color = themeColors[index];
+    const startAngle = (-90 + index * 360 / themeColors.length) * Math.PI / 180;
+    const endAngle = (-90 + (index + 1) * 360 / themeColors.length) * Math.PI / 180;
+    const startX = center + radius * Math.cos(startAngle);
+    const startY = center + radius * Math.sin(startAngle);
+    const endX = center + radius * Math.cos(endAngle);
+    const endY = center + radius * Math.sin(endAngle);
+    const isSelected = color.id === pendingTheme.color;
+
+    segment.setAttribute(
+      "d",
+      `M ${center} ${center} L ${startX} ${startY} A ${radius} ${radius} 0 0 1 ${endX} ${endY} Z`,
+    );
+    segment.setAttribute("fill", color.wheelColor);
+    segment.setAttribute("aria-checked", String(isSelected));
+    segment.setAttribute("tabindex", isSelected ? "0" : "-1");
+    segment.classList.toggle("is-selected", isSelected);
+  });
+  themeModeSwitch.checked = pendingTheme.mode === "dark";
+  updateThemeModeLabel();
+}
+
+function applyTheme(theme) {
+  selectedTheme = { ...theme };
+  document.documentElement.dataset.themeColor = theme.color;
+  document.documentElement.dataset.themeMode = theme.mode;
+  document.querySelector('meta[name="theme-color"]').content =
+    getComputedStyle(document.documentElement).getPropertyValue("--page-background").trim();
+}
+
+function openThemeDialog() {
+  closeLanguageMenu();
+  pendingTheme = { ...selectedTheme };
+  themeStatus.hidden = true;
+  themeDialog.showModal();
+  updateThemeSelection();
+  themeSegments.find((segment) => segment.dataset.themeColor === pendingTheme.color).focus();
+}
+
+function selectPendingThemeColor(color) {
+  if (!themeColors.some((themeColor) => themeColor.id === color)) return;
+  pendingTheme.color = color;
+  updateThemeSelection();
+}
+
+function saveTheme() {
+  const theme = { ...pendingTheme };
+  applyTheme(theme);
+  try {
+    localStorage.setItem(themeStorageKey, JSON.stringify(theme));
+    themeDialog.close();
+  } catch {
+    themeStatus.textContent = translate("themeStorageUnavailable");
+    themeStatus.hidden = false;
+  }
 }
 
 function setLanguageMenuOpen(isOpen, focusIndex = 0) {
@@ -778,10 +900,52 @@ languageOptions.forEach((option, index) => {
     }
   });
 });
+themePickerButton.addEventListener("click", openThemeDialog);
+themeDialogClose.addEventListener("click", () => themeDialog.close());
+themeCancelButton.addEventListener("click", () => themeDialog.close());
+themeSaveButton.addEventListener("click", saveTheme);
+themeModeSwitch.addEventListener("change", () => {
+  pendingTheme.mode = themeModeSwitch.checked ? "dark" : "light";
+  updateThemeModeLabel();
+});
+themeSegments.forEach((segment, index) => {
+  segment.addEventListener("click", () => {
+    selectPendingThemeColor(segment.dataset.themeColor);
+    segment.focus();
+  });
+  segment.addEventListener("keydown", (event) => {
+    let nextIndex = index;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      nextIndex = (index + 1) % themeSegments.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nextIndex = (index - 1 + themeSegments.length) % themeSegments.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = themeSegments.length - 1;
+    } else if (event.key === " " || event.key === "Enter") {
+      event.preventDefault();
+      selectPendingThemeColor(segment.dataset.themeColor);
+      return;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const nextSegment = themeSegments[nextIndex];
+    selectPendingThemeColor(nextSegment.dataset.themeColor);
+    nextSegment.focus();
+  });
+});
+themeDialog.addEventListener("click", (event) => {
+  if (event.target === themeDialog) themeDialog.close();
+});
 document.addEventListener("click", (event) => {
   if (!event.target.closest(".language-picker")) closeLanguageMenu();
 });
 
+applyTheme(selectedTheme);
+updateThemeSelection();
 setPracticeVisible(false);
 updateSessionControls();
 updateScore();
