@@ -1,4 +1,19 @@
 import { operations, randomChoice } from "./exercises/operations.js";
+import {
+  getStoredLanguage,
+  getStoredUsername,
+  removeStoredUsername,
+  storeLanguage,
+  storeTheme,
+  storeUsername,
+} from "./storage.js";
+import {
+  createExerciseResult,
+  getSessionScore,
+  hasExerciseResult,
+} from "./practice/session.js";
+import { translations } from "./translations.js";
+import { renderSessionResults } from "./ui/results.js";
 
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer");
@@ -77,167 +92,11 @@ const themeColors = [
   { id: "indigo", wheelColor: "#8076b5" },
   { id: "violet", wheelColor: "#a18ad0" },
 ];
-const themeStorageKey = "math-sprout.theme";
 let selectedTheme = {
   color: document.documentElement.dataset.themeColor,
   mode: document.documentElement.dataset.themeMode,
 };
 let pendingTheme = { ...selectedTheme };
-
-const translations = {
-  en: {
-    pageTitle: "Math Sprout — Maths Practice",
-    metaDescription: "A friendly place for kids to practise their maths.",
-    tagline: "A little practice goes a long way",
-    languageLabel: "Language",
-    englishLanguage: "English",
-    dutchLanguage: "Dutch",
-    chooseThemeColor: "Choose theme color",
-    themeSettings: "Theme settings",
-    themeColors: "Theme colors",
-    themeRed: "Red",
-    themeOrange: "Orange",
-    themeYellow: "Yellow",
-    themeGreen: "Green",
-    themeBlue: "Blue",
-    themeIndigo: "Indigo",
-    themeViolet: "Violet",
-    lightMode: "Light",
-    darkMode: "Dark mode",
-    cancel: "Cancel",
-    themeStorageUnavailable: "Theme applies for this visit, but could not be saved in this browser.",
-    usernamePrompt: "What should we call you?",
-    usernamePlaceholder: "Add a username",
-    save: "Save",
-    clear: "Clear",
-    chooseExercises: "Choose your exercises",
-    addition: "Addition",
-    subtraction: "Subtraction",
-    multiplication: "Multiplication",
-    division: "Division",
-    additionLimits: "Addition limits",
-    subtractionLimits: "Subtraction limits",
-    maximumResult: "Maximum result",
-    maximumLeftNumber: "Maximum left number",
-    maximumRightNumber: "Maximum right number",
-    multiplicationTables: "Multiplication tables",
-    divisionTables: "Division tables",
-    start: "Start",
-    stop: "Stop",
-    score: "Score: {correct} / {total}",
-    time: "Time",
-    intro: "Choose what you’d like to practise, then press Start.",
-    questionPrompt: "What is…?",
-    answerLabel: "Your answer",
-    checkAnswer: "Check answer",
-    numberPad: "Number pad",
-    clearAnswer: "Clear answer",
-    deleteLastDigit: "Delete last digit",
-    newQuestion: "New question",
-    sessionResults: "Session results",
-    personalizedResults: "{name}’s session results",
-    showMistakesOnly: "Show mistakes only",
-    noExercises: "No recorded exercises yet.",
-    noMistakes: "No mistakes in this session.",
-    totalTime: "Total time",
-    averageTime: "Average time",
-    perExercise: "per exercise",
-    close: "Close",
-    footerNote: "Take your time — you’re doing great!",
-    enterUsername: "Enter a username or clear it to use a generic name.",
-    savedAs: "Saved as {name}.",
-    usingForVisit: "Using {name} for this visit.",
-    usernameCleared: "Username cleared.",
-    usernameClearedForVisit: "Username cleared for this visit.",
-    welcomeBack: "Welcome back, {name}!",
-    languageForVisit: "Language will be used for this visit.",
-    sessionComplete: "Session complete{name}! Press Start to practise again.",
-    typeAnswer: "Type or tap your answer first.",
-    correctFeedback: "That’s right{name}! Great job!",
-    incorrectFeedback: "Not quite{name}. Keep going!",
-    skippedAnswer: "Skipped — no answer submitted",
-    answer: "Answer: {answer}",
-    correctAnswer: "Correct answer: {answer}",
-    correct: "Correct",
-    incorrect: "Incorrect",
-  },
-  "nl-BE": {
-    pageTitle: "Math Sprout — Oefen je rekenen",
-    metaDescription: "Een fijne plek waar kinderen hun rekenvaardigheden oefenen.",
-    tagline: "Een beetje oefenen helpt je vooruit",
-    languageLabel: "Taal",
-    englishLanguage: "Engels",
-    dutchLanguage: "Nederlands",
-    chooseThemeColor: "Kies een themakleur",
-    themeSettings: "Thema-instellingen",
-    themeColors: "Themakleuren",
-    themeRed: "Rood",
-    themeOrange: "Oranje",
-    themeYellow: "Geel",
-    themeGreen: "Groen",
-    themeBlue: "Blauw",
-    themeIndigo: "Indigo",
-    themeViolet: "Violet",
-    lightMode: "Licht",
-    darkMode: "Donkere modus",
-    cancel: "Annuleren",
-    themeStorageUnavailable: "Het thema geldt voor dit bezoek, maar kon niet in deze browser worden opgeslagen.",
-    usernamePrompt: "Hoe mogen we je noemen?",
-    usernamePlaceholder: "Vul een gebruikersnaam in",
-    save: "Opslaan",
-    clear: "Wissen",
-    chooseExercises: "Kies je oefeningen",
-    addition: "Optellen",
-    subtraction: "Aftrekken",
-    multiplication: "Vermenigvuldigen",
-    division: "Delen",
-    additionLimits: "Grenzen voor optellen",
-    subtractionLimits: "Grenzen voor aftrekken",
-    maximumResult: "Maximaal antwoord",
-    maximumLeftNumber: "Maximaal getal links",
-    maximumRightNumber: "Maximaal getal rechts",
-    multiplicationTables: "Maaltafels",
-    divisionTables: "Deeltafels",
-    start: "Start",
-    stop: "Stoppen",
-    score: "Score: {correct} / {total}",
-    time: "Tijd",
-    intro: "Kies wat je wilt oefenen en druk daarna op Start.",
-    questionPrompt: "Hoeveel is…?",
-    answerLabel: "Jouw antwoord",
-    checkAnswer: "Controleer je antwoord",
-    numberPad: "Cijfertoetsen",
-    clearAnswer: "Antwoord wissen",
-    deleteLastDigit: "Laatste cijfer wissen",
-    newQuestion: "Nieuwe vraag",
-    sessionResults: "Resultaten van de sessie",
-    personalizedResults: "Resultaten van {name}",
-    showMistakesOnly: "Toon alleen fouten",
-    noExercises: "Er zijn nog geen oefeningen geregistreerd.",
-    noMistakes: "Geen fouten in deze sessie.",
-    totalTime: "Totale tijd",
-    averageTime: "Gemiddelde tijd",
-    perExercise: "per oefening",
-    close: "Sluiten",
-    footerNote: "Neem je tijd — je doet het geweldig!",
-    enterUsername: "Vul een gebruikersnaam in of wis die om een algemene naam te gebruiken.",
-    savedAs: "Opgeslagen als {name}.",
-    usingForVisit: "{name} wordt alleen deze keer gebruikt.",
-    usernameCleared: "Gebruikersnaam gewist.",
-    usernameClearedForVisit: "Gebruikersnaam voor deze keer gewist.",
-    welcomeBack: "Welkom terug, {name}!",
-    languageForVisit: "De taal wordt alleen deze keer gebruikt.",
-    sessionComplete: "Sessie afgelopen{name}! Druk op Start om opnieuw te oefenen.",
-    typeAnswer: "Typ of tik eerst je antwoord.",
-    correctFeedback: "Dat klopt{name}! Goed gedaan!",
-    incorrectFeedback: "Niet helemaal{name}. Blijf proberen!",
-    skippedAnswer: "Overgeslagen — geen antwoord ingevuld",
-    answer: "Antwoord: {answer}",
-    correctAnswer: "Juiste antwoord: {answer}",
-    correct: "Juist",
-    incorrect: "Fout",
-  },
-};
 
 let currentExercise = null;
 let results = [];
@@ -245,8 +104,6 @@ let sessionStartedAt = null;
 let sessionElapsed = 0;
 let sessionActive = false;
 let timerInterval;
-const usernameStorageKey = "math-sprout.username";
-const languageStorageKey = "math-sprout.language";
 let username = "";
 let language = "nl-BE";
 let currentFeedback = null;
@@ -368,7 +225,7 @@ function saveTheme() {
   const theme = { ...pendingTheme };
   applyTheme(theme);
   try {
-    localStorage.setItem(themeStorageKey, JSON.stringify(theme));
+    storeTheme(theme);
     themeDialog.close();
   } catch {
     themeStatus.textContent = translate("themeStorageUnavailable");
@@ -394,7 +251,7 @@ function setLanguage(value, persist = true) {
   closeLanguageMenu(true);
   if (persist) {
     try {
-      localStorage.setItem(languageStorageKey, language);
+      storeLanguage(language);
     } catch {
       setUsernameStatus("languageForVisit");
     }
@@ -403,10 +260,7 @@ function setLanguage(value, persist = true) {
 
 function loadLanguage() {
   try {
-    const savedLanguage = localStorage.getItem(languageStorageKey);
-    if (savedLanguage === "en" || savedLanguage === "nl-BE") {
-      language = savedLanguage;
-    }
+    language = getStoredLanguage() ?? language;
   } catch {
     language = "en";
   }
@@ -502,7 +356,7 @@ function saveUsername(value) {
   usernameInput.value = username;
   clearUsernameButton.hidden = false;
   try {
-    localStorage.setItem(usernameStorageKey, username);
+    storeUsername(username);
     setUsernameStatus("savedAs", { name: username });
   } catch {
     setUsernameStatus("usingForVisit", { name: username });
@@ -515,7 +369,7 @@ function clearUsername() {
   usernameInput.value = "";
   clearUsernameButton.hidden = true;
   try {
-    localStorage.removeItem(usernameStorageKey);
+    removeStoredUsername();
     setUsernameStatus("usernameCleared");
   } catch {
     setUsernameStatus("usernameClearedForVisit");
@@ -525,16 +379,11 @@ function clearUsername() {
 
 function loadUsername() {
   try {
-    const savedUsername = localStorage.getItem(usernameStorageKey);
-    if (savedUsername) {
-      username = savedUsername.trim();
-      if (username) {
-        usernameInput.value = username;
-        clearUsernameButton.hidden = false;
-        setUsernameStatus("welcomeBack", { name: username });
-      } else {
-        localStorage.removeItem(usernameStorageKey);
-      }
+    username = getStoredUsername() ?? "";
+    if (username) {
+      usernameInput.value = username;
+      clearUsernameButton.hidden = false;
+      setUsernameStatus("welcomeBack", { name: username });
     }
   } catch {
     currentUsernameStatus = null;
@@ -543,18 +392,9 @@ function loadUsername() {
   updatePersonalizedText();
 }
 
-function currentExerciseHasResult() {
-  return currentExercise !== null && currentExercise.firstAnswer !== null;
-}
-
 function updateScore() {
-  const currentIsRecorded = currentExerciseHasResult();
-  const exerciseCount = results.length + Number(currentIsRecorded);
-  const correctCount =
-    results.filter((result) => result.isCorrect).length +
-    Number(currentIsRecorded && currentExercise.isCorrect);
-
-  const scoreText = translate("score", { correct: correctCount, total: exerciseCount });
+  const { correct, total } = getSessionScore(results, currentExercise);
+  const scoreText = translate("score", { correct, total });
   scoreCounter.textContent = scoreText;
   resultsScore.textContent = scoreText;
 }
@@ -599,20 +439,8 @@ function createQuestion() {
 }
 
 function finishCurrentExercise(skipped, finishedAt = performance.now()) {
-  if (!currentExercise) return;
-
-  if (currentExercise.firstAnswer === null && !skipped) {
-    currentExercise = null;
-    return;
-  }
-
-  results.push({
-    question: currentExercise.question,
-    correctAnswer: currentExercise.correctAnswer,
-    firstAnswer: currentExercise.firstAnswer,
-    isCorrect: currentExercise.firstAnswer === null ? false : currentExercise.isCorrect,
-    duration: finishedAt - currentExercise.startedAt,
-  });
+  const result = createExerciseResult(currentExercise, skipped, finishedAt);
+  if (result) results.push(result);
   currentExercise = null;
 }
 
@@ -641,63 +469,17 @@ function startSession() {
 }
 
 function renderResults() {
-  resultsList.replaceChildren();
-  const showMistakesOnly = mistakesOnlyCheckbox.checked;
-
-  results.forEach((result) => {
-    if (showMistakesOnly && result.isCorrect) return;
-
-    const item = document.createElement("li");
-    item.className = `result-item ${result.isCorrect ? "result-correct" : "result-incorrect"}`;
-
-    const details = document.createElement("div");
-    details.className = "result-details";
-
-    const question = document.createElement("p");
-    question.className = "result-question";
-    question.textContent = `${result.question} = ?`;
-
-    const answer = document.createElement("p");
-    answer.className = "result-response";
-    answer.textContent =
-      result.firstAnswer === null
-        ? translate("skippedAnswer")
-        : translate("answer", { answer: result.firstAnswer });
-
-    const correctAnswer = document.createElement("p");
-    correctAnswer.className = "result-answer";
-    correctAnswer.textContent = translate("correctAnswer", { answer: result.correctAnswer });
-
-    const outcome = document.createElement("div");
-    outcome.className = "result-outcome";
-
-    const status = document.createElement("span");
-    status.className = "result-status";
-    status.textContent = translate(result.isCorrect ? "correct" : "incorrect");
-
-    const duration = document.createElement("span");
-    duration.className = "result-duration";
-    duration.textContent = formatDuration(result.duration);
-
-    details.append(question, answer);
-    if (!result.isCorrect && result.firstAnswer !== null) {
-      details.append(correctAnswer);
-    }
-    outcome.append(status, duration);
-    item.append(details, outcome);
-    resultsList.append(item);
+  renderSessionResults({
+    results,
+    showMistakesOnly: mistakesOnlyCheckbox.checked,
+    resultsList,
+    resultsEmpty,
+    totalTimeText,
+    averageTimeText,
+    sessionElapsed,
+    translate,
+    formatDuration,
   });
-
-  const visibleResults = resultsList.children.length;
-  resultsEmpty.hidden = visibleResults > 0;
-  resultsEmpty.textContent = results.length === 0
-    ? translate("noExercises")
-    : translate("noMistakes");
-
-  const totalExerciseTime = results.reduce((total, result) => total + result.duration, 0);
-  const averageExerciseTime = results.length ? totalExerciseTime / results.length : 0;
-  totalTimeText.textContent = formatDuration(sessionElapsed);
-  averageTimeText.textContent = formatDuration(averageExerciseTime);
 }
 
 function stopSession() {
@@ -708,7 +490,7 @@ function stopSession() {
   window.clearInterval(timerInterval);
   sessionActive = false;
 
-  if (currentExerciseHasResult()) {
+  if (hasExerciseResult(currentExercise)) {
     finishCurrentExercise(false, stoppedAt);
   } else {
     currentExercise = null;
