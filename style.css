@@ -162,6 +162,20 @@ h1 {
   text-align: left;
 }
 
+.username-display {
+  margin-top: 24px;
+  padding: 14px 18px;
+  border: 1px solid #d9d4ef;
+  border-left: 5px solid #5b4acb;
+  border-radius: 16px;
+  background: linear-gradient(110deg, #f0eeff, #fbfaff);
+  box-shadow: 0 8px 20px rgb(52 42 100 / 8%);
+  color: #40358c;
+  font-size: 1.1rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
 .username-form label {
   display: block;
   margin-bottom: 8px;

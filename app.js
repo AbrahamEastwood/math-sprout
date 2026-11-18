@@ -44,6 +44,8 @@ const totalTimeText = document.querySelector("#total-time");
 const averageTimeText = document.querySelector("#average-time");
 const closeResultsButton = document.querySelector("#close-results");
 const usernameForm = document.querySelector("#username-form");
+const usernameDisplay = document.querySelector("#username-display");
+const displayUsername = document.querySelector("#display-username");
 const usernameInput = document.querySelector("#username");
 const clearUsernameButton = document.querySelector("#clear-username");
 const usernameStatus = document.querySelector("#username-status");
@@ -239,6 +241,7 @@ let username = "";
 let language = "nl-BE";
 let currentFeedback = null;
 let currentUsernameStatus = null;
+let settingsCollapsed = false;
 
 function translate(key, values = {}) {
   return translations[language][key].replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
@@ -494,6 +497,10 @@ function updateSessionControls() {
   const selected = selectedOperations();
   sessionToggleButton.disabled =
     !sessionActive && (selected.length === 0 || !selected.every(operationSettingsAreValid));
+  usernameForm.hidden = settingsCollapsed;
+  operationPicker.hidden = settingsCollapsed;
+  usernameDisplay.hidden = !settingsCollapsed || !username;
+  displayUsername.textContent = username;
   operationPicker.disabled = sessionActive;
   Object.entries(operationSettings).forEach(([operationKey, settings]) => {
     settings.hidden = !selected.includes(operationKey);
@@ -555,6 +562,7 @@ function startSession() {
   sessionStartedAt = performance.now();
   sessionElapsed = 0;
   sessionActive = true;
+  settingsCollapsed = true;
   intro.hidden = true;
   setPracticeVisible(true);
   updateSessionControls();
@@ -735,6 +743,10 @@ Object.values(limitInputs).forEach((inputs) => {
 
 mistakesOnlyCheckbox.addEventListener("change", renderResults);
 closeResultsButton.addEventListener("click", () => resultsDialog.close());
+resultsDialog.addEventListener("close", () => {
+  settingsCollapsed = false;
+  updateSessionControls();
+});
 usernameForm.addEventListener("submit", (event) => {
   event.preventDefault();
   saveUsername(usernameInput.value);
