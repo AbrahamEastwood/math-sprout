@@ -1,3 +1,5 @@
+import { operations, randomChoice } from "./exercises/operations.js";
+
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer");
 const questionText = document.querySelector("#question");
@@ -237,51 +239,6 @@ const translations = {
   },
 };
 
-const operations = {
-  addition: {
-    symbol: "+",
-    makeNumbers({ maxResult, maxLeft, maxRight }) {
-      const first = randomNumber(Math.min(maxLeft, maxResult - 1));
-      const second = randomNumber(Math.min(maxRight, maxResult - first));
-      return [first, second];
-    },
-    calculate(first, second) {
-      return first + second;
-    },
-  },
-  subtraction: {
-    symbol: "−",
-    makeNumbers({ maxResult, maxLeft, maxRight }) {
-      const second = randomNumber(Math.min(maxRight, maxLeft));
-      const first = randomNumberBetween(second, Math.min(maxLeft, second + maxResult));
-      return [first, second];
-    },
-    calculate(first, second) {
-      return first - second;
-    },
-  },
-  multiplication: {
-    symbol: "×",
-    makeNumbers({ tables }) {
-      return [randomNumber(10), randomChoice(tables)];
-    },
-    calculate(first, second) {
-      return first * second;
-    },
-  },
-  division: {
-    symbol: "÷",
-    makeNumbers({ tables }) {
-      const divisor = randomChoice(tables);
-      const quotient = randomNumber(10);
-      return [divisor * quotient, divisor];
-    },
-    calculate(first, second) {
-      return first / second;
-    },
-  },
-};
-
 let currentExercise = null;
 let results = [];
 let sessionStartedAt = null;
@@ -456,18 +413,6 @@ function loadLanguage() {
   applyTranslations();
 }
 
-function randomNumber(max) {
-  return Math.floor(Math.random() * max) + 1;
-}
-
-function randomNumberBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function randomChoice(values) {
-  return values[Math.floor(Math.random() * values.length)];
-}
-
 function selectedOperations() {
   return [...operationCheckboxes]
     .filter((checkbox) => checkbox.checked)
@@ -633,7 +578,7 @@ function updateSessionControls() {
 
 function createQuestion() {
   const selected = selectedOperations();
-  const operationKey = selected[Math.floor(Math.random() * selected.length)];
+  const operationKey = randomChoice(selected);
   const selectedOperation = operations[operationKey];
   const [firstNumber, secondNumber] = selectedOperation.makeNumbers(settingsForOperation(operationKey));
   const expectedAnswer = selectedOperation.calculate(firstNumber, secondNumber);
