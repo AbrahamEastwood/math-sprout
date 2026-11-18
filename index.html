@@ -26,38 +26,18 @@
           aria-controls="language-options"
           aria-labelledby="language-label selected-language"
         >
-          <svg class="language-flag language-flag-hidden" data-selected-language-flag="en" viewBox="0 0 60 30" aria-hidden="true" focusable="false">
-            <rect width="60" height="30" fill="#012169" />
-            <path d="M-3 -1 63 31M63 -1-3 31" stroke="#fff" stroke-width="6" />
-            <path d="M-3 -1 63 31M63 -1-3 31" stroke="#c8102e" stroke-width="2.8" />
-            <path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10" />
-            <path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6" />
-          </svg>
-          <svg class="language-flag" data-selected-language-flag="nl-BE" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-            <rect width="10" height="20" fill="#000" />
-            <rect x="10" width="10" height="20" fill="#fae042" />
-            <rect x="20" width="10" height="20" fill="#ed2939" />
-          </svg>
+          <img class="language-flag language-flag-hidden" data-selected-language-flag="en" src="assets/flags/uk.png" alt="" />
+          <img class="language-flag" data-selected-language-flag="nl-BE" src="assets/flags/belgium.png" alt="" />
           <span id="selected-language">Nederlands</span>
           <span class="language-chevron" aria-hidden="true">⌄</span>
         </button>
         <div class="language-options" id="language-options" role="group" aria-labelledby="language-label" hidden>
           <button class="language-option" type="button" data-language="en" aria-pressed="false">
-            <svg class="language-flag" viewBox="0 0 60 30" aria-hidden="true" focusable="false">
-              <rect width="60" height="30" fill="#012169" />
-              <path d="M-3 -1 63 31M63 -1-3 31" stroke="#fff" stroke-width="6" />
-              <path d="M-3 -1 63 31M63 -1-3 31" stroke="#c8102e" stroke-width="2.8" />
-              <path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10" />
-              <path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6" />
-            </svg>
+            <img class="language-flag" src="assets/flags/uk.png" alt="" />
             <span data-i18n="englishLanguage">English</span>
           </button>
           <button class="language-option" type="button" data-language="nl-BE" aria-pressed="true">
-            <svg class="language-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-              <rect width="10" height="20" fill="#000" />
-              <rect x="10" width="10" height="20" fill="#fae042" />
-              <rect x="20" width="10" height="20" fill="#ed2939" />
-            </svg>
+            <img class="language-flag" src="assets/flags/belgium.png" alt="" />
             <span data-i18n="dutchLanguage">Nederlands</span>
           </button>
         </div>
