@@ -7,6 +7,11 @@ import {
   storeTheme,
   storeUsername,
 } from "./storage.js";
+import {
+  createExerciseResult,
+  getSessionScore,
+  hasExerciseResult,
+} from "./practice/session.js";
 import { translations } from "./translations.js";
 
 const answerForm = document.querySelector("#answer-form");
@@ -386,18 +391,9 @@ function loadUsername() {
   updatePersonalizedText();
 }
 
-function currentExerciseHasResult() {
-  return currentExercise !== null && currentExercise.firstAnswer !== null;
-}
-
 function updateScore() {
-  const currentIsRecorded = currentExerciseHasResult();
-  const exerciseCount = results.length + Number(currentIsRecorded);
-  const correctCount =
-    results.filter((result) => result.isCorrect).length +
-    Number(currentIsRecorded && currentExercise.isCorrect);
-
-  const scoreText = translate("score", { correct: correctCount, total: exerciseCount });
+  const { correct, total } = getSessionScore(results, currentExercise);
+  const scoreText = translate("score", { correct, total });
   scoreCounter.textContent = scoreText;
   resultsScore.textContent = scoreText;
 }
@@ -442,20 +438,8 @@ function createQuestion() {
 }
 
 function finishCurrentExercise(skipped, finishedAt = performance.now()) {
-  if (!currentExercise) return;
-
-  if (currentExercise.firstAnswer === null && !skipped) {
-    currentExercise = null;
-    return;
-  }
-
-  results.push({
-    question: currentExercise.question,
-    correctAnswer: currentExercise.correctAnswer,
-    firstAnswer: currentExercise.firstAnswer,
-    isCorrect: currentExercise.firstAnswer === null ? false : currentExercise.isCorrect,
-    duration: finishedAt - currentExercise.startedAt,
-  });
+  const result = createExerciseResult(currentExercise, skipped, finishedAt);
+  if (result) results.push(result);
   currentExercise = null;
 }
 
@@ -551,7 +535,7 @@ function stopSession() {
   window.clearInterval(timerInterval);
   sessionActive = false;
 
-  if (currentExerciseHasResult()) {
+  if (hasExerciseResult(currentExercise)) {
     finishCurrentExercise(false, stoppedAt);
   } else {
     currentExercise = null;
