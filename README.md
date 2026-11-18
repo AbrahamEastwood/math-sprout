@@ -1,6 +1,6 @@
 # Math Sprout
 
-A lightweight, phone- and tablet-friendly maths practice app for children. Add an optional username to personalize motivational feedback and results, choose arithmetic exercises, then start a timed practice session to track first-answer accuracy and review results with per-exercise, total, and average times. Usernames are stored in the browser. Questions are generated in the browser, and answers are checked without a backend.
+A lightweight, phone- and tablet-friendly maths practice app for children. Add an optional username to personalize motivational feedback and results, configure addition and subtraction limits, choose the multiplication and division tables to practise, then start a timed practice session to track first-answer accuracy and review results with per-exercise, total, and average times. Usernames are stored in the browser. Questions are generated in the browser, and answers are checked without a backend.
 
 ## Run it
 
