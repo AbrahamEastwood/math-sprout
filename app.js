@@ -15,6 +15,7 @@ const clearAnswerButton = document.querySelector("#clear-answer");
 const sessionToggleButton = document.querySelector("#session-toggle");
 const sessionMetrics = document.querySelector("#session-metrics");
 const scoreCounter = document.querySelector("#score-counter");
+const resultsScore = document.querySelector("#results-score");
 const elapsedTime = document.querySelector("#elapsed-time");
 const resultsDialog = document.querySelector("#results-dialog");
 const resultsList = document.querySelector("#results-list");
@@ -419,7 +420,9 @@ function updateScore() {
     results.filter((result) => result.isCorrect).length +
     Number(currentIsRecorded && currentExercise.isCorrect);
 
-  scoreCounter.textContent = translate("score", { correct: correctCount, total: exerciseCount });
+  const scoreText = translate("score", { correct: correctCount, total: exerciseCount });
+  scoreCounter.textContent = scoreText;
+  resultsScore.textContent = scoreText;
 }
 
 function updateSessionControls() {
