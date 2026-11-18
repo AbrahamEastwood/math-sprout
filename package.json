@@ -1,0 +1,22 @@
+{
+  "name": "math-sprout",
+  "version": "1.0.0",
+  "description": "A lightweight, phone- and tablet-friendly maths practice app for children. Add an optional username to personalize motivational feedback and results, configure addition and subtraction limits, choose the multiplication and division tables to practise, then start a timed practice session to track first-answer accuracy and review results with per-exercise, total, and average times. Usernames are stored in the browser. Questions are generated in the browser, and answers are checked without a backend.",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}
