@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f6f4ff" />
     <meta name="description" content="A friendly place for kids to practise their maths." />
-    <title>Math Sprout — Maths Practice</title>
+    <title data-i18n="pageTitle">Math Sprout — Maths Practice</title>
     <link rel="stylesheet" href="style.css" />
     <script src="app.js" defer></script>
   </head>
@@ -13,11 +13,19 @@
     <main class="practice-card">
       <header class="page-header">
         <h1>Math Sprout <span aria-hidden="true">🌱</span></h1>
-        <p class="eyebrow">A little practice goes a long way</p>
+        <p class="eyebrow" data-i18n="tagline">A little practice goes a long way</p>
       </header>
 
+      <div class="language-picker">
+        <label for="language-select" data-i18n="languageLabel">Language</label>
+        <select id="language-select" aria-label="Language" data-i18n-aria-label="languageLabel">
+          <option value="en">🇬🇧 English</option>
+          <option value="nl-BE">🇧🇪 Nederlands</option>
+        </select>
+      </div>
+
       <form class="username-form" id="username-form">
-        <label for="username">What should we call you?</label>
+        <label for="username" data-i18n="usernamePrompt">What should we call you?</label>
         <div class="username-row">
           <input
             id="username"
@@ -26,52 +34,53 @@
             maxlength="24"
             autocomplete="nickname"
             placeholder="Add a username"
+            data-i18n-placeholder="usernamePlaceholder"
           />
-          <button class="save-username-button" type="submit">Save</button>
-          <button class="clear-username-button" id="clear-username" type="button" hidden>Clear</button>
+          <button class="save-username-button" type="submit" data-i18n="save">Save</button>
+          <button class="clear-username-button" id="clear-username" type="button" hidden data-i18n="clear">Clear</button>
         </div>
         <p class="username-status" id="username-status" role="status" aria-live="polite"></p>
       </form>
 
       <section class="exercise" aria-labelledby="question">
         <fieldset class="operation-picker">
-          <legend>Choose your exercises</legend>
+          <legend data-i18n="chooseExercises">Choose your exercises</legend>
           <div class="operation-options">
             <label class="operation-option">
               <input type="checkbox" name="operation" value="addition" checked />
               <span class="operation-icon" aria-hidden="true">+</span>
-              <span>Addition</span>
+              <span data-i18n="addition">Addition</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="subtraction" checked />
               <span class="operation-icon" aria-hidden="true">−</span>
-              <span>Subtraction</span>
+              <span data-i18n="subtraction">Subtraction</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="multiplication" />
               <span class="operation-icon" aria-hidden="true">×</span>
-              <span>Multiplication</span>
+              <span data-i18n="multiplication">Multiplication</span>
             </label>
             <label class="operation-option">
               <input type="checkbox" name="operation" value="division" />
               <span class="operation-icon" aria-hidden="true">÷</span>
-              <span>Division</span>
+              <span data-i18n="division">Division</span>
             </label>
           </div>
         </fieldset>
 
-        <button class="session-button" id="session-toggle" type="button">Start</button>
+        <button class="session-button" id="session-toggle" type="button" data-i18n="start">Start</button>
         <div class="session-metrics" id="session-metrics" hidden>
           <p class="score-counter" id="score-counter" aria-live="polite" aria-atomic="true">Score: 0 / 0</p>
-          <p class="timer-counter">Time: <span id="elapsed-time" aria-live="off">00:00</span></p>
+          <p class="timer-counter"><span data-i18n="time">Time</span>: <span id="elapsed-time" aria-live="off">00:00</span></p>
         </div>
-        <p class="intro" id="intro">Choose what you’d like to practise, then press Start.</p>
+        <p class="intro" id="intro" data-i18n="intro">Choose what you’d like to practise, then press Start.</p>
 
-        <p class="section-label" hidden>What is…?</p>
+        <p class="section-label" hidden data-i18n="questionPrompt">What is…?</p>
         <p class="question" id="question" aria-live="polite" hidden>0 + 0 = ?</p>
 
         <form id="answer-form" hidden>
-          <label for="answer">Your answer</label>
+          <label for="answer" data-i18n="answerLabel">Your answer</label>
           <div class="answer-row">
             <input
               id="answer"
@@ -84,11 +93,11 @@
             />
             <button class="check-button" id="check-answer" type="submit">
               <span class="button-icon" aria-hidden="true">↵</span>
-              <span id="check-label">Check answer</span>
+              <span id="check-label" data-i18n="checkAnswer">Check answer</span>
             </button>
           </div>
 
-          <div class="number-pad" role="group" aria-label="Number pad">
+          <div class="number-pad" role="group" aria-label="Number pad" data-i18n-aria-label="numberPad">
             <button class="number-key" type="button" data-digit="1" aria-label="1">1</button>
             <button class="number-key" type="button" data-digit="2" aria-label="2">2</button>
             <button class="number-key" type="button" data-digit="3" aria-label="3">3</button>
@@ -98,36 +107,36 @@
             <button class="number-key" type="button" data-digit="7" aria-label="7">7</button>
             <button class="number-key" type="button" data-digit="8" aria-label="8">8</button>
             <button class="number-key" type="button" data-digit="9" aria-label="9">9</button>
-            <button class="number-key utility-key" id="clear-answer" type="button" aria-label="Clear answer">C</button>
+            <button class="number-key utility-key" id="clear-answer" type="button" aria-label="Clear answer" data-i18n-aria-label="clearAnswer">C</button>
             <button class="number-key" type="button" data-digit="0" aria-label="0">0</button>
-            <button class="number-key utility-key" id="delete-digit" type="button" aria-label="Delete last digit">⌫</button>
+            <button class="number-key utility-key" id="delete-digit" type="button" aria-label="Delete last digit" data-i18n-aria-label="deleteLastDigit">⌫</button>
           </div>
         </form>
 
         <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
         <button class="new-question-button" id="new-question" type="button" hidden>
-          <span aria-hidden="true">⟳</span> New question
+          <span aria-hidden="true">⟳</span> <span data-i18n="newQuestion">New question</span>
         </button>
       </section>
 
       <dialog class="results-dialog" id="results-dialog" aria-labelledby="results-title">
         <div class="results-header">
-          <h2 id="results-title">Session results</h2>
+          <h2 id="results-title" data-i18n="sessionResults">Session results</h2>
           <label class="mistakes-filter">
             <input id="mistakes-only" type="checkbox" />
-            <span>Show mistakes only</span>
+            <span data-i18n="showMistakesOnly">Show mistakes only</span>
           </label>
         </div>
         <ol class="results-list" id="results-list"></ol>
         <p class="results-empty" id="results-empty" hidden>No recorded exercises yet.</p>
         <div class="results-summary">
-          <p>Total time <strong id="total-time">00:00</strong></p>
-          <p>Average time <strong id="average-time">00:00</strong> per exercise</p>
+          <p><span data-i18n="totalTime">Total time</span> <strong id="total-time">00:00</strong></p>
+          <p><span data-i18n="averageTime">Average time</span> <strong id="average-time">00:00</strong> <span data-i18n="perExercise">per exercise</span></p>
         </div>
-        <button class="close-results-button" id="close-results" type="button">Close</button>
+        <button class="close-results-button" id="close-results" type="button" data-i18n="close">Close</button>
       </dialog>
 
-      <p class="footer-note">Take your time — you’re doing great! <span aria-hidden="true">✨</span></p>
+      <p class="footer-note"><span data-i18n="footerNote">Take your time — you’re doing great!</span> <span aria-hidden="true">✨</span></p>
     </main>
   </body>
 </html>
