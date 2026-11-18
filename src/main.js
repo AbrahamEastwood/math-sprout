@@ -1,4 +1,12 @@
 import { operations, randomChoice } from "./exercises/operations.js";
+import {
+  getStoredLanguage,
+  getStoredUsername,
+  removeStoredUsername,
+  storeLanguage,
+  storeTheme,
+  storeUsername,
+} from "./storage.js";
 import { translations } from "./translations.js";
 
 const answerForm = document.querySelector("#answer-form");
@@ -78,7 +86,6 @@ const themeColors = [
   { id: "indigo", wheelColor: "#8076b5" },
   { id: "violet", wheelColor: "#a18ad0" },
 ];
-const themeStorageKey = "math-sprout.theme";
 let selectedTheme = {
   color: document.documentElement.dataset.themeColor,
   mode: document.documentElement.dataset.themeMode,
@@ -91,8 +98,6 @@ let sessionStartedAt = null;
 let sessionElapsed = 0;
 let sessionActive = false;
 let timerInterval;
-const usernameStorageKey = "math-sprout.username";
-const languageStorageKey = "math-sprout.language";
 let username = "";
 let language = "nl-BE";
 let currentFeedback = null;
@@ -214,7 +219,7 @@ function saveTheme() {
   const theme = { ...pendingTheme };
   applyTheme(theme);
   try {
-    localStorage.setItem(themeStorageKey, JSON.stringify(theme));
+    storeTheme(theme);
     themeDialog.close();
   } catch {
     themeStatus.textContent = translate("themeStorageUnavailable");
@@ -240,7 +245,7 @@ function setLanguage(value, persist = true) {
   closeLanguageMenu(true);
   if (persist) {
     try {
-      localStorage.setItem(languageStorageKey, language);
+      storeLanguage(language);
     } catch {
       setUsernameStatus("languageForVisit");
     }
@@ -249,10 +254,7 @@ function setLanguage(value, persist = true) {
 
 function loadLanguage() {
   try {
-    const savedLanguage = localStorage.getItem(languageStorageKey);
-    if (savedLanguage === "en" || savedLanguage === "nl-BE") {
-      language = savedLanguage;
-    }
+    language = getStoredLanguage() ?? language;
   } catch {
     language = "en";
   }
@@ -348,7 +350,7 @@ function saveUsername(value) {
   usernameInput.value = username;
   clearUsernameButton.hidden = false;
   try {
-    localStorage.setItem(usernameStorageKey, username);
+    storeUsername(username);
     setUsernameStatus("savedAs", { name: username });
   } catch {
     setUsernameStatus("usingForVisit", { name: username });
@@ -361,7 +363,7 @@ function clearUsername() {
   usernameInput.value = "";
   clearUsernameButton.hidden = true;
   try {
-    localStorage.removeItem(usernameStorageKey);
+    removeStoredUsername();
     setUsernameStatus("usernameCleared");
   } catch {
     setUsernameStatus("usernameClearedForVisit");
@@ -371,16 +373,11 @@ function clearUsername() {
 
 function loadUsername() {
   try {
-    const savedUsername = localStorage.getItem(usernameStorageKey);
-    if (savedUsername) {
-      username = savedUsername.trim();
-      if (username) {
-        usernameInput.value = username;
-        clearUsernameButton.hidden = false;
-        setUsernameStatus("welcomeBack", { name: username });
-      } else {
-        localStorage.removeItem(usernameStorageKey);
-      }
+    username = getStoredUsername() ?? "";
+    if (username) {
+      usernameInput.value = username;
+      clearUsernameButton.hidden = false;
+      setUsernameStatus("welcomeBack", { name: username });
     }
   } catch {
     currentUsernameStatus = null;
