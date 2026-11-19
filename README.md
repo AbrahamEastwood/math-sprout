@@ -1,19 +1,40 @@
 # Math Sprout
 
-A lightweight, phone- and tablet-friendly maths practice app for children. Add an optional username to personalize motivational feedback and results, configure addition and subtraction limits, choose the multiplication and division tables to practise, then start a timed practice session to track first-answer accuracy and review results with per-exercise, total, and average times. Usernames are stored in the browser. Questions are generated in the browser, and answers are checked without a backend.
+Math Sprout is a friendly, phone- and tablet-ready maths practice app for children. It offers addition, subtraction, multiplication, and division practice in English and Belgian Dutch, with no account or backend.
 
-Choose one of seven theme colors and switch between light and dark mode from the color picker beside the language selector. Theme preferences are stored in the browser.
+**Try it:** [abrahameastwood.github.io/math-sprout](https://abrahameastwood.github.io/math-sprout/)
 
-## Run it
+## What it does
 
-Open `index.html` in a browser. No build step or server is required.
+- Lets learners choose arithmetic operations and configure practice settings.
+- Runs timed practice sessions and shows accuracy, per-exercise timing, and results.
+- Offers seven theme colors, light and dark modes, and optional personalized feedback.
+- Keeps preferences in the browser; questions and answers are handled locally.
 
-## Publish with GitHub Pages
+## Run locally
 
-This repository can be published as a static site from the `master` branch:
+You’ll need Node.js and npm. From the repository directory:
 
-1. Open the repository’s **Settings** → **Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**.
-3. Select `master` and the `/(root)` folder, then save.
+```sh
+npm install
+npm run dev
+```
 
-After publishing, GitHub Pages will show the site URL in the Pages settings. The published site is public, even though this repository is private; private-repository Pages availability depends on your GitHub plan.
+Open the local URL printed by Vite. To run the tests and create a production build:
+
+```sh
+npm test
+npm run build
+```
+
+## Contributing
+
+Contributions are welcome! Start with the [open issues](../../issues), or open an issue to discuss a larger change before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local setup and pull request checklist.
+
+## Deployment
+
+The app is published with GitHub Pages. The repository’s deployment workflow builds and tests the app when changes are pushed to `master`.
+
+## License
+
+Math Sprout is available under the [MIT License](LICENSE).
