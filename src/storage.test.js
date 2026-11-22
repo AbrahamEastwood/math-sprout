@@ -1,11 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
+  getStoredExerciseSelection,
   getStoredLanguage,
   getStoredUsername,
+  storeExerciseSelection,
   storeLanguage,
   storeTheme,
   storeUsername,
 } from "./storage.js";
+
+const exerciseSelection = {
+  selectedOperations: ["addition", "multiplication"],
+  addition: { maxLeft: 20, maxRight: 30, maxResult: 50 },
+  subtraction: { maxLeft: 10, maxRight: 10, maxResult: 10 },
+  multiplicationTables: [2, 5, 12],
+  divisionTables: [1, 3, 10],
+};
 
 function createStorage(initialValues = {}) {
   const values = new Map(Object.entries(initialValues));
@@ -43,6 +53,31 @@ describe("browser storage helpers", () => {
     const storage = createStorage();
     storeTheme({ color: "blue", mode: "dark" }, storage);
     expect(storage.getItem("math-sprout.theme")).toBe('{"color":"blue","mode":"dark"}');
+  });
+
+  it("stores and restores the global exercise selection independently", () => {
+    const storage = createStorage({ "math-sprout.username": "Ada" });
+    storeExerciseSelection(exerciseSelection, storage);
+    expect(storage.getItem("math-sprout.exercise-selection")).toBe(JSON.stringify(exerciseSelection));
+    expect(getStoredExerciseSelection(storage)).toEqual(exerciseSelection);
+    expect(storage.getItem("math-sprout.username")).toBe("Ada");
+  });
+
+  it("returns no saved selection when it is missing or malformed", () => {
+    expect(getStoredExerciseSelection(createStorage())).toBeNull();
+    expect(
+      getStoredExerciseSelection(createStorage({ "math-sprout.exercise-selection": "{" })),
+    ).toBeNull();
+    expect(
+      getStoredExerciseSelection(
+        createStorage({
+          "math-sprout.exercise-selection": JSON.stringify({
+            ...exerciseSelection,
+            multiplicationTables: [13],
+          }),
+        }),
+      ),
+    ).toBeNull();
   });
 
   it("stores the selected language and username", () => {

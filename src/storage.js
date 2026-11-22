@@ -2,10 +2,68 @@ const storageKeys = {
   theme: "math-sprout.theme",
   username: "math-sprout.username",
   language: "math-sprout.language",
+  exerciseSelection: "math-sprout.exercise-selection",
 };
+
+const operationKeys = ["addition", "subtraction", "multiplication", "division"];
+const tableNumbers = Array.from({ length: 12 }, (_, index) => index + 1);
 
 export function storeTheme(theme, storage = localStorage) {
   storage.setItem(storageKeys.theme, JSON.stringify(theme));
+}
+
+export function storeExerciseSelection(selection, storage = localStorage) {
+  storage.setItem(storageKeys.exerciseSelection, JSON.stringify(selection));
+}
+
+export function getStoredExerciseSelection(storage = localStorage) {
+  const savedSelection = storage.getItem(storageKeys.exerciseSelection);
+  if (!savedSelection) return null;
+
+  let selection;
+  try {
+    selection = JSON.parse(savedSelection);
+  } catch {
+    return null;
+  }
+
+  if (
+    !selection ||
+    !Array.isArray(selection.selectedOperations) ||
+    selection.selectedOperations.some((operation) => !operationKeys.includes(operation)) ||
+    new Set(selection.selectedOperations).size !== selection.selectedOperations.length ||
+    !isValidLimits(selection.addition, 2) ||
+    !isValidLimits(selection.subtraction, 0) ||
+    !isValidTables(selection.multiplicationTables) ||
+    !isValidTables(selection.divisionTables)
+  ) {
+    return null;
+  }
+
+  return selection;
+}
+
+function isValidLimits(limits, minimumResult) {
+  return (
+    limits &&
+    Number.isInteger(limits.maxLeft) &&
+    limits.maxLeft >= 1 &&
+    limits.maxLeft <= 1000 &&
+    Number.isInteger(limits.maxRight) &&
+    limits.maxRight >= 1 &&
+    limits.maxRight <= 1000 &&
+    Number.isInteger(limits.maxResult) &&
+    limits.maxResult >= minimumResult &&
+    limits.maxResult <= 1000
+  );
+}
+
+function isValidTables(tables) {
+  return (
+    Array.isArray(tables) &&
+    tables.every((table) => tableNumbers.includes(table)) &&
+    new Set(tables).size === tables.length
+  );
 }
 
 export function storeLanguage(language, storage = localStorage) {
