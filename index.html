@@ -153,6 +153,26 @@
       </div>
 
       <section class="exercise" aria-labelledby="question">
+        <fieldset class="practice-mode-picker" id="practice-mode-picker">
+          <legend data-i18n="practiceMode">Practice mode</legend>
+          <div class="practice-mode-options">
+            <label>
+              <span data-i18n="mode">Mode</span>
+              <select id="practice-mode" required>
+                <option value="" selected disabled data-i18n="choosePracticeMode">Choose a mode</option>
+                <option value="exercise-count" data-i18n="exerciseCountMode">Exercise count</option>
+                <option value="time-limit" data-i18n="timeLimitMode">Time limit</option>
+                <option value="free-form" data-i18n="freeFormMode">Free-form</option>
+              </select>
+            </label>
+            <label id="practice-target-label" hidden>
+              <span data-i18n="practiceTarget">Target</span>
+              <select id="practice-target" required>
+                <option value="" selected disabled data-i18n="choosePracticeTarget">Choose a target</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
         <fieldset class="operation-picker">
           <legend data-i18n="chooseExercises">Choose your exercises</legend>
           <div class="operation-options">

@@ -408,6 +408,51 @@ h1 {
   text-align: left;
 }
 
+.practice-mode-picker {
+  min-width: 0;
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+  text-align: left;
+}
+
+.practice-mode-picker legend {
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.practice-mode-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+
+.practice-mode-options label {
+  display: grid;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
+.practice-mode-options select {
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--primary-soft-text);
+  font: inherit;
+}
+
+.practice-mode-options select:focus-visible {
+  border-color: var(--border-strong);
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .operation-picker legend {
   margin-bottom: 12px;
   color: var(--text-secondary);
