@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   getStoredExerciseSelection,
   getStoredLanguage,
+  getStoredLeaderboards,
   getStoredUsername,
   storeExerciseSelection,
   storeLanguage,
+  storeLeaderboards,
   storeTheme,
   storeUsername,
 } from "./storage.js";
@@ -123,5 +125,43 @@ describe("browser storage helpers", () => {
     storeUsername("Ada", storage);
     expect(getStoredLanguage(storage)).toBe("nl-BE");
     expect(getStoredUsername(storage)).toBe("Ada");
+  });
+
+  it("stores and restores shared leaderboards while discarding malformed entries", () => {
+    const storage = createStorage();
+    const entry = {
+      name: "Ada",
+      correct: 8,
+      total: 10,
+      accuracy: 0.8,
+      target: 5,
+      mode: "time-limit",
+      elapsedMilliseconds: 300_000,
+    };
+    const leaderboards = { "time-limit": [entry], "exercise-count": [] };
+    storeLeaderboards(leaderboards, storage);
+    expect(getStoredLeaderboards(storage)).toEqual(leaderboards);
+
+    storage.setItem("math-sprout.leaderboards", JSON.stringify({
+      "time-limit": [entry, { ...entry, accuracy: 0.5 }],
+      "exercise-count": "invalid",
+    }));
+    expect(getStoredLeaderboards(storage)).toEqual({
+      "time-limit": [entry],
+      "exercise-count": [],
+    });
+  });
+
+  it("returns empty leaderboards for missing or malformed saved data", () => {
+    expect(getStoredLeaderboards(createStorage())).toEqual({
+      "time-limit": [],
+      "exercise-count": [],
+    });
+    expect(getStoredLeaderboards(createStorage({
+      "math-sprout.leaderboards": "{",
+    }))).toEqual({
+      "time-limit": [],
+      "exercise-count": [],
+    });
   });
 });
