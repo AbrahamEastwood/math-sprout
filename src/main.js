@@ -1,8 +1,10 @@
 import { operations, randomChoice } from "./exercises/operations.js";
 import {
+  getStoredExerciseSelection,
   getStoredLanguage,
   getStoredUsername,
   removeStoredUsername,
+  storeExerciseSelection,
   storeLanguage,
   storeTheme,
   storeUsername,
@@ -287,6 +289,50 @@ function selectedOperations() {
 function selectedTables(operationKey) {
   return [...document.querySelectorAll(`input[name="table-${operationKey}"]:checked`)]
     .map((checkbox) => Number(checkbox.value));
+}
+
+function restoreExerciseSelection() {
+  try {
+    const selection = getStoredExerciseSelection();
+    if (!selection) return;
+
+    operationCheckboxes.forEach((checkbox) => {
+      checkbox.checked = selection.selectedOperations.includes(checkbox.value);
+    });
+    Object.entries(limitInputs).forEach(([operationKey, inputs]) => {
+      Object.entries(inputs).forEach(([key, input]) => {
+        input.value = String(selection[operationKey][key]);
+      });
+    });
+    tableCheckboxes.forEach((checkbox) => {
+      const operationKey = checkbox.name.slice("table-".length);
+      const tables = selection[`${operationKey}Tables`];
+      checkbox.checked = tables.includes(Number(checkbox.value));
+    });
+  } catch {
+    // Keep the page defaults if browser storage is unavailable.
+  }
+}
+
+function saveExerciseSelection() {
+  const limitsAreValid = Object.values(limitInputs).every((inputs) =>
+    Object.values(inputs).every((input) => input.validity.valid));
+  if (!limitsAreValid) {
+    return;
+  }
+
+  const selection = {
+    selectedOperations: selectedOperations(),
+    addition: settingsForOperation("addition"),
+    subtraction: settingsForOperation("subtraction"),
+    multiplicationTables: selectedTables("multiplication"),
+    divisionTables: selectedTables("division"),
+  };
+  try {
+    storeExerciseSelection(selection);
+  } catch {
+    // Keep the current-visit selection if browser storage is unavailable.
+  }
 }
 
 function settingsForOperation(operationKey) {
@@ -672,7 +718,10 @@ sessionToggleButton.addEventListener("click", () => {
 });
 
 operationCheckboxes.forEach((checkbox) => {
-  checkbox.addEventListener("change", updateSessionControls);
+  checkbox.addEventListener("change", () => {
+    saveExerciseSelection();
+    updateSessionControls();
+  });
 });
 
 practiceModeSelect.addEventListener("change", () => {
@@ -682,10 +731,18 @@ practiceModeSelect.addEventListener("change", () => {
 practiceTargetSelect.addEventListener("change", updateSessionControls);
 
 tableCheckboxes.forEach((checkbox) => {
-  checkbox.addEventListener("change", updateSessionControls);
+  checkbox.addEventListener("change", () => {
+    saveExerciseSelection();
+    updateSessionControls();
+  });
 });
 Object.values(limitInputs).forEach((inputs) => {
-  Object.values(inputs).forEach((input) => input.addEventListener("input", updateSessionControls));
+  Object.values(inputs).forEach((input) =>
+    input.addEventListener("input", () => {
+      saveExerciseSelection();
+      updateSessionControls();
+    }),
+  );
 });
 
 mistakesOnlyCheckbox.addEventListener("change", renderResults);
@@ -771,6 +828,7 @@ document.addEventListener("click", (event) => {
 
 applyTheme(selectedTheme);
 updateThemeSelection();
+restoreExerciseSelection();
 setPracticeVisible(false);
 updateSessionControls();
 updateScore();
