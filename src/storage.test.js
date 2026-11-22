@@ -15,6 +15,8 @@ const exerciseSelection = {
   subtraction: { maxLeft: 10, maxRight: 10, maxResult: 10 },
   multiplicationTables: [2, 5, 12],
   divisionTables: [1, 3, 10],
+  practiceMode: "time-limit",
+  practiceTarget: 5,
 };
 
 function createStorage(initialValues = {}) {
@@ -63,6 +65,31 @@ describe("browser storage helpers", () => {
     expect(storage.getItem("math-sprout.username")).toBe("Ada");
   });
 
+  it("restores older selections and modes without a selected target", () => {
+    const legacySelection = { ...exerciseSelection };
+    delete legacySelection.practiceMode;
+    delete legacySelection.practiceTarget;
+    const storage = createStorage({
+      "math-sprout.exercise-selection": JSON.stringify(legacySelection),
+    });
+    expect(getStoredExerciseSelection(storage)).toMatchObject({
+      ...legacySelection,
+      practiceMode: null,
+      practiceTarget: null,
+    });
+
+    expect(
+      getStoredExerciseSelection(
+        createStorage({
+          "math-sprout.exercise-selection": JSON.stringify({
+            ...exerciseSelection,
+            practiceTarget: null,
+          }),
+        }),
+      ),
+    ).toMatchObject({ practiceMode: "time-limit", practiceTarget: null });
+  });
+
   it("returns no saved selection when it is missing or malformed", () => {
     expect(getStoredExerciseSelection(createStorage())).toBeNull();
     expect(
@@ -74,6 +101,16 @@ describe("browser storage helpers", () => {
           "math-sprout.exercise-selection": JSON.stringify({
             ...exerciseSelection,
             multiplicationTables: [13],
+          }),
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      getStoredExerciseSelection(
+        createStorage({
+          "math-sprout.exercise-selection": JSON.stringify({
+            ...exerciseSelection,
+            practiceTarget: 4,
           }),
         }),
       ),

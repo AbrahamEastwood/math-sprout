@@ -309,6 +309,11 @@ function restoreExerciseSelection() {
       const tables = selection[`${operationKey}Tables`];
       checkbox.checked = tables.includes(Number(checkbox.value));
     });
+    practiceModeSelect.value = selection.practiceMode ?? "";
+    renderPracticeTargetOptions();
+    practiceTargetSelect.value = selection.practiceTarget === null
+      ? ""
+      : String(selection.practiceTarget);
   } catch {
     // Keep the page defaults if browser storage is unavailable.
   }
@@ -327,6 +332,8 @@ function saveExerciseSelection() {
     subtraction: settingsForOperation("subtraction"),
     multiplicationTables: selectedTables("multiplication"),
     divisionTables: selectedTables("division"),
+    practiceMode: practiceModeSelect.value || null,
+    practiceTarget: practiceTargetSelect.value === "" ? null : Number(practiceTargetSelect.value),
   };
   try {
     storeExerciseSelection(selection);
@@ -726,9 +733,13 @@ operationCheckboxes.forEach((checkbox) => {
 
 practiceModeSelect.addEventListener("change", () => {
   renderPracticeTargetOptions();
+  saveExerciseSelection();
   updateSessionControls();
 });
-practiceTargetSelect.addEventListener("change", updateSessionControls);
+practiceTargetSelect.addEventListener("change", () => {
+  saveExerciseSelection();
+  updateSessionControls();
+});
 
 tableCheckboxes.forEach((checkbox) => {
   checkbox.addEventListener("change", () => {
