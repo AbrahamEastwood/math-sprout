@@ -11,8 +11,13 @@ import {
 } from "./storage.js";
 import {
   createExerciseResult,
+  EXERCISE_COUNT_TARGETS,
+  getSessionProgress,
   getSessionScore,
   hasExerciseResult,
+  isValidPracticeTarget,
+  shouldEndSession,
+  TIME_LIMIT_TARGETS_MINUTES,
 } from "./practice/session.js";
 import { translations } from "./translations.js";
 import { renderSessionResults } from "./ui/results.js";
@@ -51,7 +56,12 @@ const numberPadButtons = document.querySelectorAll(".number-key");
 const deleteDigitButton = document.querySelector("#delete-digit");
 const clearAnswerButton = document.querySelector("#clear-answer");
 const sessionToggleButton = document.querySelector("#session-toggle");
+const practiceModePicker = document.querySelector("#practice-mode-picker");
+const practiceModeSelect = document.querySelector("#practice-mode");
+const practiceTargetLabel = document.querySelector("#practice-target-label");
+const practiceTargetSelect = document.querySelector("#practice-target");
 const sessionMetrics = document.querySelector("#session-metrics");
+const sessionProgress = document.querySelector("#session-progress");
 const scoreCounter = document.querySelector("#score-counter");
 const resultsScore = document.querySelector("#results-score");
 const elapsedTime = document.querySelector("#elapsed-time");
@@ -105,6 +115,8 @@ let results = [];
 let sessionStartedAt = null;
 let sessionElapsed = 0;
 let sessionActive = false;
+let activePracticeMode = null;
+let activePracticeTarget = null;
 let timerInterval;
 let username = "";
 let language = "nl-BE";
@@ -132,6 +144,7 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-title]").forEach((element) => {
     element.title = translate(element.dataset.i18nTitle);
   });
+  renderPracticeTargetOptions();
   updateLanguagePicker();
   updateThemeModeLabel();
   if (currentFeedback) {
@@ -298,6 +311,11 @@ function restoreExerciseSelection() {
       const tables = selection[`${operationKey}Tables`];
       checkbox.checked = tables.includes(Number(checkbox.value));
     });
+    practiceModeSelect.value = selection.practiceMode ?? "";
+    renderPracticeTargetOptions();
+    practiceTargetSelect.value = selection.practiceTarget === null
+      ? ""
+      : String(selection.practiceTarget);
   } catch {
     // Keep the page defaults if browser storage is unavailable.
   }
@@ -316,6 +334,8 @@ function saveExerciseSelection() {
     subtraction: settingsForOperation("subtraction"),
     multiplicationTables: selectedTables("multiplication"),
     divisionTables: selectedTables("division"),
+    practiceMode: practiceModeSelect.value || null,
+    practiceTarget: practiceTargetSelect.value === "" ? null : Number(practiceTargetSelect.value),
   };
   try {
     storeExerciseSelection(selection);
@@ -371,9 +391,23 @@ function formatDuration(milliseconds) {
   return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+function shouldEndActiveSession(now = performance.now()) {
+  return shouldEndSession(
+    activePracticeMode,
+    activePracticeTarget,
+    results.length,
+    now - sessionStartedAt,
+  );
+}
+
 function updateTimer() {
-  const milliseconds = sessionActive ? performance.now() - sessionStartedAt : sessionElapsed;
+  const now = performance.now();
+  const milliseconds = sessionActive ? now - sessionStartedAt : sessionElapsed;
   elapsedTime.textContent = formatDuration(milliseconds);
+  updateSessionProgress(now);
+  if (sessionActive && shouldEndActiveSession(now)) {
+    stopSession(true, now);
+  }
 }
 
 function updatePersonalizedText() {
@@ -443,18 +477,38 @@ function updateScore() {
   const scoreText = translate("score", { correct, total });
   scoreCounter.textContent = scoreText;
   resultsScore.textContent = scoreText;
+  updateSessionProgress();
+}
+
+function updateSessionProgress(now = performance.now()) {
+  const progress = getSessionProgress(
+    activePracticeMode,
+    activePracticeTarget,
+    results.length,
+    now - sessionStartedAt,
+  );
+  sessionProgress.hidden = !sessionActive || progress === null;
+  sessionProgress.value = progress ?? 0;
 }
 
 function updateSessionControls() {
   sessionToggleButton.textContent = translate(sessionActive ? "stop" : "start");
   const selected = selectedOperations();
+  const mode = practiceModeSelect.value;
+  const target = practiceTargetSelect.value === "" ? null : Number(practiceTargetSelect.value);
+  const hasValidPracticeMode = isValidPracticeTarget(mode, target);
   sessionToggleButton.disabled =
-    !sessionActive && (selected.length === 0 || !selected.every(operationSettingsAreValid));
+    !sessionActive &&
+    (!hasValidPracticeMode || selected.length === 0 || !selected.every(operationSettingsAreValid));
   usernameForm.hidden = settingsCollapsed;
-  operationPicker.hidden = settingsCollapsed;
+  practiceModePicker.hidden = settingsCollapsed;
+  practiceModePicker.disabled = sessionActive;
+  practiceTargetLabel.hidden = mode === "" || mode === "free-form";
+  practiceTargetSelect.required = !practiceTargetLabel.hidden;
+  operationPicker.hidden = settingsCollapsed || mode === "";
+  operationPicker.disabled = sessionActive || mode === "";
   usernameDisplay.hidden = !settingsCollapsed || !username;
   displayUsername.textContent = username;
-  operationPicker.disabled = sessionActive;
   Object.entries(operationSettings).forEach(([operationKey, settings]) => {
     settings.hidden = !selected.includes(operationKey);
     settings.disabled = sessionActive;
@@ -484,6 +538,35 @@ function createQuestion() {
   answerInput.focus({ preventScroll: true });
 }
 
+function renderPracticeTargetOptions() {
+  const mode = practiceModeSelect.value;
+  const targetValues = mode === "exercise-count"
+    ? EXERCISE_COUNT_TARGETS
+    : mode === "time-limit"
+      ? TIME_LIMIT_TARGETS_MINUTES
+      : [];
+  const selectedTarget = practiceTargetSelect.value;
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.textContent = translate("choosePracticeTarget");
+  practiceTargetSelect.replaceChildren(placeholder);
+
+  targetValues.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = String(value);
+    option.textContent = mode === "exercise-count"
+      ? translate("exerciseCountTarget", { count: value })
+      : translate("timeLimitTarget", { minutes: value });
+    practiceTargetSelect.append(option);
+  });
+
+  if (targetValues.includes(Number(selectedTarget))) {
+    practiceTargetSelect.value = selectedTarget;
+  }
+}
+
 function finishCurrentExercise(skipped, finishedAt = performance.now()) {
   const result = createExerciseResult(currentExercise, skipped, finishedAt);
   if (result) results.push(result);
@@ -497,9 +580,17 @@ function showAnswerFeedback(isCorrect) {
 }
 
 function startSession() {
-  if (selectedOperations().length === 0) return;
+  const mode = practiceModeSelect.value;
+  const target = practiceTargetSelect.value === "" ? null : Number(practiceTargetSelect.value);
+  if (
+    !isValidPracticeTarget(mode, target) ||
+    selectedOperations().length === 0 ||
+    !selectedOperations().every(operationSettingsAreValid)
+  ) return;
 
   results = [];
+  activePracticeMode = mode;
+  activePracticeTarget = target;
   sessionStartedAt = performance.now();
   sessionElapsed = 0;
   sessionActive = true;
@@ -528,16 +619,18 @@ function renderResults() {
   });
 }
 
-function stopSession() {
+function stopSession(expired = false, stoppedAt = performance.now()) {
   if (!sessionActive) return;
 
-  const stoppedAt = performance.now();
-  sessionElapsed = stoppedAt - sessionStartedAt;
+  const endTime = expired && activePracticeMode === "time-limit"
+    ? sessionStartedAt + activePracticeTarget * 60_000
+    : stoppedAt;
+  sessionElapsed = endTime - sessionStartedAt;
   window.clearInterval(timerInterval);
   sessionActive = false;
 
-  if (hasExerciseResult(currentExercise)) {
-    finishCurrentExercise(false, stoppedAt);
+  if (!expired && hasExerciseResult(currentExercise)) {
+    finishCurrentExercise(false, endTime);
   } else {
     currentExercise = null;
   }
@@ -556,6 +649,10 @@ function stopSession() {
 answerForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!sessionActive || !currentExercise) return;
+  if (shouldEndActiveSession()) {
+    stopSession(true);
+    return;
+  }
 
   const value = answerInput.value.trim();
   if (value === "" || !/^-?\d+$/.test(value)) {
@@ -569,6 +666,10 @@ answerForm.addEventListener("submit", (event) => {
   const isCorrect = currentExercise.isCorrect;
   showAnswerFeedback(isCorrect);
   finishCurrentExercise(false);
+  if (shouldEndActiveSession()) {
+    stopSession();
+    return;
+  }
   createQuestion();
   setFeedback(
     isCorrect ? "correctFeedback" : "incorrectFeedback",
@@ -612,14 +713,27 @@ answerInput.addEventListener("input", () => {
 
 newQuestionButton.addEventListener("click", () => {
   if (!sessionActive) return;
+  if (shouldEndActiveSession()) {
+    stopSession(true);
+    return;
+  }
   finishCurrentExercise(true);
+  if (shouldEndActiveSession()) {
+    stopSession();
+    return;
+  }
   createQuestion();
   updateScore();
 });
 
 sessionToggleButton.addEventListener("click", () => {
   if (sessionActive) {
-    stopSession();
+    const now = performance.now();
+    if (shouldEndActiveSession(now)) {
+      stopSession(true, now);
+    } else {
+      stopSession(false, now);
+    }
   } else {
     startSession();
   }
@@ -630,6 +744,16 @@ operationCheckboxes.forEach((checkbox) => {
     saveExerciseSelection();
     updateSessionControls();
   });
+});
+
+practiceModeSelect.addEventListener("change", () => {
+  renderPracticeTargetOptions();
+  saveExerciseSelection();
+  updateSessionControls();
+});
+practiceTargetSelect.addEventListener("change", () => {
+  saveExerciseSelection();
+  updateSessionControls();
 });
 
 tableCheckboxes.forEach((checkbox) => {

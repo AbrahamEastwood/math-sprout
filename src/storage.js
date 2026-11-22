@@ -1,3 +1,5 @@
+import { EXERCISE_COUNT_TARGETS, TIME_LIMIT_TARGETS_MINUTES } from "./practice/session.js";
+
 const storageKeys = {
   theme: "math-sprout.theme",
   username: "math-sprout.username",
@@ -35,12 +37,25 @@ export function getStoredExerciseSelection(storage = localStorage) {
     !isValidLimits(selection.addition, 2) ||
     !isValidLimits(selection.subtraction, 0) ||
     !isValidTables(selection.multiplicationTables) ||
-    !isValidTables(selection.divisionTables)
+    !isValidTables(selection.divisionTables) ||
+    !isValidPracticeMode(selection.practiceMode ?? null, selection.practiceTarget ?? null)
   ) {
     return null;
   }
 
-  return selection;
+  return {
+    ...selection,
+    practiceMode: selection.practiceMode ?? null,
+    practiceTarget: selection.practiceTarget ?? null,
+  };
+}
+
+function isValidPracticeMode(mode, target) {
+  if (mode === null) return target === null;
+  if (mode === "free-form") return target === null;
+  if (mode === "exercise-count") return target === null || EXERCISE_COUNT_TARGETS.includes(target);
+  if (mode === "time-limit") return target === null || TIME_LIMIT_TARGETS_MINUTES.includes(target);
+  return false;
 }
 
 function isValidLimits(limits, minimumResult) {
