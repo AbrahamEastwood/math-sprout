@@ -283,14 +283,6 @@
         </fieldset>
 
         <button class="session-button" id="session-toggle" type="button" data-i18n="start">Start</button>
-        <div class="session-metrics" id="session-metrics" hidden>
-          <p class="score-counter" id="score-counter" aria-live="polite" aria-atomic="true">Score: 0 / 0</p>
-          <p class="timer-counter"><span data-i18n="time">Time</span>: <span id="elapsed-time" aria-live="off">00:00</span></p>
-        </div>
-        <p class="intro" id="intro" data-i18n="intro">Choose what you’d like to practise, then press Start.</p>
-
-        <p class="section-label" hidden data-i18n="questionPrompt">What is…?</p>
-        <p class="question" id="question" aria-live="polite" hidden>0 + 0 = ?</p>
         <progress
           class="session-progress"
           id="session-progress"
@@ -300,6 +292,14 @@
           data-i18n-aria-label="sessionProgress"
           hidden
         ></progress>
+        <div class="session-metrics" id="session-metrics" hidden>
+          <p class="score-counter" id="score-counter" aria-live="polite" aria-atomic="true">Score: 0 / 0</p>
+          <p class="timer-counter"><span data-i18n="time">Time</span>: <span id="elapsed-time" aria-live="off">00:00</span></p>
+        </div>
+        <p class="intro" id="intro" data-i18n="intro">Choose what you’d like to practise, then press Start.</p>
+
+        <p class="section-label" hidden data-i18n="questionPrompt">What is…?</p>
+        <p class="question" id="question" aria-live="polite" hidden>0 + 0 = ?</p>
 
         <form id="answer-form" hidden>
           <label for="answer" data-i18n="answerLabel">Your answer</label>
