@@ -40,8 +40,8 @@ flowchart TD
 1. `index.html` supplies the semantic page structure and controls, loads `src/style.css`, and starts `src/main.js` as an ES module.
 2. Before the page is styled, a small inline script reads and validates the saved theme from `localStorage`, then sets theme data attributes on the document. This avoids initially rendering with the wrong theme when a valid preference exists.
 3. `main.js` reads the saved language and username, applies translations, configures event handlers, and coordinates DOM updates. It owns the active practice session and its transient state.
-4. When a session starts, the selected operation and its settings are passed to `src/exercises/operations.js`, which generates operands and calculates the answer. Random generation defaults to `Math.random`; helpers accept an injected random function to make their behavior testable.
-5. Answers and skips are recorded in in-memory session state. The elapsed time uses the browser's monotonic `performance.now()` clock. Stopping a session opens a results dialog; `src/ui/results.js` filters and renders the results and computes summary times.
+4. When a session starts, its practice mode and target are validated alongside the selected operations. Operation settings are passed to `src/exercises/operations.js`, which generates operands and calculates the answer. Random generation defaults to `Math.random`; helpers accept an injected random function to make their behavior testable.
+5. Answers and skips are recorded in in-memory session state. Exercise-count sessions stop when the target number of exercises is recorded; time-limit sessions stop when their duration expires and discard an unanswered exercise. Free-form and early-stopped sessions end manually. The elapsed time uses the browser's monotonic `performance.now()` clock. Ending a session opens a results dialog; `src/ui/results.js` filters and renders the results and computes summary times.
 6. Usernames, language, and theme preferences are stored locally in the browser. Practice history and session results are not persisted. No data is sent to a server by the app.
 
 ## Code boundaries
@@ -63,7 +63,7 @@ flowchart TD
 ## State and persistence
 
 - **Persistent browser preferences:** theme color/mode (`math-sprout.theme`), language (`math-sprout.language`), and optional username (`math-sprout.username`).
-- **Transient state:** selected exercise settings, current question, answers, scores, timings, results, open dialogs, and feedback live in memory and are lost on reload.
+- **Transient state:** selected practice mode and target, exercise settings, current question, answers, scores, timings, results, open dialogs, and feedback live in memory and are lost on reload.
 - **No account or synchronization:** preferences are scoped to the current browser's origin and are not shared across devices.
 - **Storage failures:** the UI handles unavailable browser storage for preference changes by keeping the current-visit choice where practical and showing status feedback. Preserve this graceful behavior when changing persistence.
 

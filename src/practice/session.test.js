@@ -1,5 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { createExerciseResult, getSessionScore, hasExerciseResult } from "./session.js";
+import {
+  createExerciseResult,
+  EXERCISE_COUNT_TARGETS,
+  getSessionScore,
+  hasExerciseResult,
+  isValidPracticeTarget,
+  shouldEndSession,
+  TIME_LIMIT_TARGETS_MINUTES,
+} from "./session.js";
+
+describe("practice modes", () => {
+  it("accepts only the supported targets, and no target for free-form", () => {
+    expect(EXERCISE_COUNT_TARGETS).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+    expect(TIME_LIMIT_TARGETS_MINUTES).toEqual([1, 2, 3, 5, 8]);
+    expect(isValidPracticeTarget("exercise-count", 10)).toBe(true);
+    expect(isValidPracticeTarget("exercise-count", 15)).toBe(false);
+    expect(isValidPracticeTarget("time-limit", 5)).toBe(true);
+    expect(isValidPracticeTarget("time-limit", 4)).toBe(false);
+    expect(isValidPracticeTarget("free-form", null)).toBe(true);
+    expect(isValidPracticeTarget("free-form", 10)).toBe(false);
+    expect(isValidPracticeTarget("unknown", null)).toBe(false);
+  });
+
+  it("ends count and time sessions at their target, but leaves free-form manual", () => {
+    expect(shouldEndSession("exercise-count", 10, 9, 0)).toBe(false);
+    expect(shouldEndSession("exercise-count", 10, 10, 0)).toBe(true);
+    expect(shouldEndSession("time-limit", 1, 0, 59_999)).toBe(false);
+    expect(shouldEndSession("time-limit", 1, 0, 60_000)).toBe(true);
+    expect(shouldEndSession("free-form", null, 100, 1_000_000)).toBe(false);
+  });
+});
 
 describe("exercise results", () => {
   const exercise = {
