@@ -73,7 +73,22 @@
         >
           <span class="rainbow-icon" aria-hidden="true"></span>
         </button>
+        <button
+          class="high-scores-button"
+          id="high-scores-button"
+          type="button"
+          aria-label="High Scores"
+          data-i18n-aria-label="highScores"
+          aria-haspopup="dialog"
+          aria-controls="leaderboard-dialog"
+        >
+          <span aria-hidden="true">🏆</span>
+          <span class="high-scores-label" data-i18n="highScores">High Scores</span>
+        </button>
       </div>
+      <p class="leaderboard-storage-warning" id="leaderboard-storage-warning" role="status" aria-live="polite" data-i18n="leaderboardStorageUnavailable" hidden>
+        High scores are available for this visit, but could not be saved in this browser.
+      </p>
 
       <dialog class="theme-dialog" id="theme-dialog" aria-labelledby="theme-dialog-title">
         <div class="theme-dialog-header">
@@ -129,6 +144,68 @@
           <button class="theme-save-button" id="theme-save" type="button" data-i18n="save">Save</button>
         </div>
         <p class="theme-status" id="theme-status" role="status" aria-live="polite" hidden></p>
+      </dialog>
+
+      <dialog class="leaderboard-dialog" id="leaderboard-dialog" aria-labelledby="leaderboard-title">
+        <div class="leaderboard-header">
+          <h2 id="leaderboard-title" data-i18n="highScores">High Scores</h2>
+          <div class="leaderboard-header-actions">
+            <button
+              class="leaderboard-info-button"
+              id="leaderboard-info-button"
+              type="button"
+              aria-label="About leaderboard ranking"
+              data-i18n-aria-label="leaderboardInfo"
+              aria-expanded="false"
+              aria-controls="leaderboard-info"
+            >ⓘ</button>
+            <button
+              class="leaderboard-close-button"
+              id="leaderboard-close-button"
+              type="button"
+              aria-label="Close"
+              data-i18n-aria-label="close"
+            >×</button>
+          </div>
+        </div>
+        <p class="leaderboard-info" id="leaderboard-info" data-i18n="leaderboardRankingInfo" hidden>
+          Results rank by correct answers per elapsed minute. Accuracy breaks ties, and exact ties keep the earlier result ahead.
+        </p>
+        <div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard mode" data-i18n-aria-label="leaderboardMode">
+          <button
+            class="leaderboard-tab"
+            id="leaderboard-tab-time-limit"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="leaderboard-panel"
+            tabindex="0"
+            data-leaderboard-mode="time-limit"
+            data-i18n="timedLeaderboardTab"
+          >Timed</button>
+          <button
+            class="leaderboard-tab"
+            id="leaderboard-tab-exercise-count"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="leaderboard-panel"
+            tabindex="-1"
+            data-leaderboard-mode="exercise-count"
+            data-i18n="exerciseCountMode"
+          >Exercise count</button>
+        </div>
+        <section
+          class="leaderboard-panel"
+          id="leaderboard-panel"
+          role="tabpanel"
+          aria-labelledby="leaderboard-tab-time-limit"
+          tabindex="0"
+        >
+          <ol class="leaderboard-list" id="leaderboard-list"></ol>
+          <p class="leaderboard-empty" id="leaderboard-empty" data-i18n="noHighScores" hidden>No high scores yet</p>
+        </section>
+        <button class="close-leaderboard-button" id="close-leaderboard-button" type="button" data-i18n="close">Close</button>
       </dialog>
 
       <form class="username-form" id="username-form">
