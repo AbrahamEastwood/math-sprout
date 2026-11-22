@@ -18,6 +18,15 @@ export function shouldEndSession(mode, target, completedExercises, elapsedMillis
   return false;
 }
 
+export function getSessionProgress(mode, target, completedExercises, elapsedMilliseconds) {
+  if (!isValidPracticeTarget(mode, target) || mode === "free-form") return null;
+
+  const progress = mode === "exercise-count"
+    ? completedExercises / target
+    : elapsedMilliseconds / (target * 60_000);
+  return Math.min(100, Math.max(0, progress * 100));
+}
+
 export function getSessionScore(results, currentExercise) {
   const currentIsRecorded = hasExerciseResult(currentExercise);
   return {

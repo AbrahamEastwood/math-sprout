@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createExerciseResult,
   EXERCISE_COUNT_TARGETS,
+  getSessionProgress,
   getSessionScore,
   hasExerciseResult,
   isValidPracticeTarget,
@@ -28,6 +29,14 @@ describe("practice modes", () => {
     expect(shouldEndSession("time-limit", 1, 0, 59_999)).toBe(false);
     expect(shouldEndSession("time-limit", 1, 0, 60_000)).toBe(true);
     expect(shouldEndSession("free-form", null, 100, 1_000_000)).toBe(false);
+  });
+
+  it("reports bounded progress for count and time sessions only", () => {
+    expect(getSessionProgress("exercise-count", 10, 3, 0)).toBe(30);
+    expect(getSessionProgress("exercise-count", 10, 12, 0)).toBe(100);
+    expect(getSessionProgress("time-limit", 1, 0, 15_000)).toBe(25);
+    expect(getSessionProgress("time-limit", 1, 0, -1)).toBe(0);
+    expect(getSessionProgress("free-form", null, 3, 15_000)).toBeNull();
   });
 });
 

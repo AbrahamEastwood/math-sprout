@@ -12,6 +12,7 @@ import {
 import {
   createExerciseResult,
   EXERCISE_COUNT_TARGETS,
+  getSessionProgress,
   getSessionScore,
   hasExerciseResult,
   isValidPracticeTarget,
@@ -60,6 +61,7 @@ const practiceModeSelect = document.querySelector("#practice-mode");
 const practiceTargetLabel = document.querySelector("#practice-target-label");
 const practiceTargetSelect = document.querySelector("#practice-target");
 const sessionMetrics = document.querySelector("#session-metrics");
+const sessionProgress = document.querySelector("#session-progress");
 const scoreCounter = document.querySelector("#score-counter");
 const resultsScore = document.querySelector("#results-score");
 const elapsedTime = document.querySelector("#elapsed-time");
@@ -402,6 +404,7 @@ function updateTimer() {
   const now = performance.now();
   const milliseconds = sessionActive ? now - sessionStartedAt : sessionElapsed;
   elapsedTime.textContent = formatDuration(milliseconds);
+  updateSessionProgress(now);
   if (sessionActive && shouldEndActiveSession(now)) {
     stopSession(true, now);
   }
@@ -474,6 +477,18 @@ function updateScore() {
   const scoreText = translate("score", { correct, total });
   scoreCounter.textContent = scoreText;
   resultsScore.textContent = scoreText;
+  updateSessionProgress();
+}
+
+function updateSessionProgress(now = performance.now()) {
+  const progress = getSessionProgress(
+    activePracticeMode,
+    activePracticeTarget,
+    results.length,
+    now - sessionStartedAt,
+  );
+  sessionProgress.hidden = !sessionActive || progress === null;
+  sessionProgress.value = progress ?? 0;
 }
 
 function updateSessionControls() {
