@@ -437,10 +437,10 @@ function updateSessionControls() {
   practiceModePicker.disabled = sessionActive;
   practiceTargetLabel.hidden = mode === "" || mode === "free-form";
   practiceTargetSelect.required = !practiceTargetLabel.hidden;
-  operationPicker.hidden = settingsCollapsed;
+  operationPicker.hidden = settingsCollapsed || mode === "";
+  operationPicker.disabled = sessionActive || mode === "";
   usernameDisplay.hidden = !settingsCollapsed || !username;
   displayUsername.textContent = username;
-  operationPicker.disabled = sessionActive;
   Object.entries(operationSettings).forEach(([operationKey, settings]) => {
     settings.hidden = !selected.includes(operationKey);
     settings.disabled = sessionActive;
