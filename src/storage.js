@@ -1,14 +1,20 @@
-import { EXERCISE_COUNT_TARGETS, TIME_LIMIT_TARGETS_MINUTES } from "./practice/session.js";
+import {
+  EXERCISE_COUNT_TARGETS,
+  isValidPracticeTarget,
+  TIME_LIMIT_TARGETS_MINUTES,
+} from "./practice/session.js";
 
 const storageKeys = {
   theme: "math-sprout.theme",
   username: "math-sprout.username",
   language: "math-sprout.language",
   exerciseSelection: "math-sprout.exercise-selection",
+  leaderboards: "math-sprout.leaderboards",
 };
 
 const operationKeys = ["addition", "subtraction", "multiplication", "division"];
 const tableNumbers = Array.from({ length: 12 }, (_, index) => index + 1);
+const emptyLeaderboards = () => ({ "time-limit": [], "exercise-count": [] });
 
 export function storeTheme(theme, storage = localStorage) {
   storage.setItem(storageKeys.theme, JSON.stringify(theme));
@@ -108,4 +114,47 @@ export function getStoredUsername(storage = localStorage) {
     return null;
   }
   return username;
+}
+
+export function storeLeaderboards(leaderboards, storage = localStorage) {
+  storage.setItem(storageKeys.leaderboards, JSON.stringify(leaderboards));
+}
+
+export function getStoredLeaderboards(storage = localStorage) {
+  const savedLeaderboards = storage.getItem(storageKeys.leaderboards);
+  if (!savedLeaderboards) return emptyLeaderboards();
+
+  let leaderboards;
+  try {
+    leaderboards = JSON.parse(savedLeaderboards);
+  } catch {
+    return emptyLeaderboards();
+  }
+
+  if (!leaderboards || typeof leaderboards !== "object") return emptyLeaderboards();
+  return {
+    "time-limit": getValidLeaderboardEntries(leaderboards["time-limit"], "time-limit"),
+    "exercise-count": getValidLeaderboardEntries(
+      leaderboards["exercise-count"],
+      "exercise-count",
+    ),
+  };
+}
+
+function getValidLeaderboardEntries(entries, mode) {
+  if (!Array.isArray(entries)) return [];
+  return entries.filter((entry) => (
+    entry &&
+    typeof entry.name === "string" &&
+    Number.isInteger(entry.correct) &&
+    entry.correct >= 0 &&
+    Number.isInteger(entry.total) &&
+    entry.total > 0 &&
+    entry.correct <= entry.total &&
+    entry.accuracy === entry.correct / entry.total &&
+    entry.mode === mode &&
+    Number.isFinite(entry.elapsedMilliseconds) &&
+    entry.elapsedMilliseconds > 0 &&
+    isValidPracticeTarget(mode, entry.target)
+  )).slice(0, 20);
 }

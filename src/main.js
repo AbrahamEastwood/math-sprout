@@ -2,10 +2,12 @@ import { operations, randomChoice } from "./exercises/operations.js";
 import {
   getStoredExerciseSelection,
   getStoredLanguage,
+  getStoredLeaderboards,
   getStoredUsername,
   removeStoredUsername,
   storeExerciseSelection,
   storeLanguage,
+  storeLeaderboards,
   storeTheme,
   storeUsername,
 } from "./storage.js";
@@ -19,6 +21,11 @@ import {
   shouldEndSession,
   TIME_LIMIT_TARGETS_MINUTES,
 } from "./practice/session.js";
+import {
+  addLeaderboardEntry,
+  createLeaderboardEntry,
+  LEADERBOARD_DISPLAY_LIMIT,
+} from "./practice/leaderboard.js";
 import { translations } from "./translations.js";
 import { renderSessionResults } from "./ui/results.js";
 
@@ -94,6 +101,17 @@ const themeSegments = [...document.querySelectorAll(".theme-segment")];
 const themeModeSwitch = document.querySelector("#theme-mode-switch");
 const themeModeLabel = document.querySelector("#theme-mode-label");
 const themeStatus = document.querySelector("#theme-status");
+const highScoresButton = document.querySelector("#high-scores-button");
+const leaderboardDialog = document.querySelector("#leaderboard-dialog");
+const leaderboardCloseButton = document.querySelector("#leaderboard-close-button");
+const closeLeaderboardButton = document.querySelector("#close-leaderboard-button");
+const leaderboardInfoButton = document.querySelector("#leaderboard-info-button");
+const leaderboardInfo = document.querySelector("#leaderboard-info");
+const leaderboardStorageWarning = document.querySelector("#leaderboard-storage-warning");
+const leaderboardTabs = [...document.querySelectorAll(".leaderboard-tab")];
+const leaderboardPanel = document.querySelector("#leaderboard-panel");
+const leaderboardList = document.querySelector("#leaderboard-list");
+const leaderboardEmpty = document.querySelector("#leaderboard-empty");
 
 const themeColors = [
   { id: "red", wheelColor: "#d97880" },
@@ -123,6 +141,9 @@ let language = "nl-BE";
 let currentFeedback = null;
 let currentUsernameStatus = null;
 let settingsCollapsed = false;
+let leaderboards = { "time-limit": [], "exercise-count": [] };
+let leaderboardStorageAvailable = true;
+let activeLeaderboardMode = "time-limit";
 
 function translate(key, values = {}) {
   return translations[language][key].replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
@@ -157,6 +178,7 @@ function applyTranslations() {
   updateSessionControls();
   updateScore();
   if (resultsDialog.open) renderResults();
+  if (leaderboardDialog.open) renderLeaderboard();
 }
 
 function setUsernameStatus(key, values = {}, isError = false) {
@@ -619,6 +641,81 @@ function renderResults() {
   });
 }
 
+function updateLeaderboardStorageWarning() {
+  leaderboardStorageWarning.hidden = leaderboardStorageAvailable;
+}
+
+function selectLeaderboardMode(mode, focus = false) {
+  activeLeaderboardMode = mode;
+  leaderboardTabs.forEach((tab) => {
+    const selected = tab.dataset.leaderboardMode === mode;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    if (selected) leaderboardPanel.setAttribute("aria-labelledby", tab.id);
+    if (selected && focus) tab.focus();
+  });
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const entries = leaderboards[activeLeaderboardMode].slice(0, LEADERBOARD_DISPLAY_LIMIT);
+  leaderboardList.replaceChildren();
+  leaderboardEmpty.hidden = entries.length > 0;
+  updateLeaderboardStorageWarning();
+
+  entries.forEach((entry, index) => {
+    const rank = index + 1;
+    const item = document.createElement("li");
+    item.className = "leaderboard-entry";
+
+    const rankLabel = document.createElement("span");
+    rankLabel.className = "leaderboard-rank";
+    if (rank <= 3) {
+      const trophy = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      trophy.setAttribute("viewBox", "0 0 24 24");
+      trophy.setAttribute("aria-hidden", "true");
+      trophy.classList.add("leaderboard-trophy", `leaderboard-trophy-${rank}`);
+      const trophyShape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      trophyShape.setAttribute(
+        "d",
+        "M7 3h10v4h4v3a5 5 0 0 1-5 5h-2v3h4v3H6v-3h4v-3H8a5 5 0 0 1-5-5V7h4zm0 6H5v1a3 3 0 0 0 3 3H8a7 7 0 0 1-1-4zm10 0a7 7 0 0 1-1 4h0a3 3 0 0 0 3-3V9z",
+      );
+      trophy.append(trophyShape);
+      rankLabel.append(trophy);
+    }
+    const visibleRank = document.createElement("span");
+    visibleRank.setAttribute("aria-hidden", "true");
+    visibleRank.textContent = `#${rank}`;
+    const accessibleRank = document.createElement("span");
+    accessibleRank.className = "visually-hidden";
+    accessibleRank.textContent = translate("rank", { rank });
+    rankLabel.append(visibleRank, accessibleRank);
+
+    const details = document.createElement("div");
+    details.className = "leaderboard-entry-details";
+    const learnerName = document.createElement("strong");
+    learnerName.className = "leaderboard-learner";
+    learnerName.textContent = entry.name;
+    const score = document.createElement("span");
+    score.textContent = translate("leaderboardScore", {
+      correct: entry.correct,
+      total: entry.total,
+    });
+    const accuracy = document.createElement("span");
+    accuracy.textContent = translate("leaderboardAccuracy", {
+      accuracy: Math.round(entry.accuracy * 100),
+    });
+    const target = document.createElement("span");
+    target.textContent = translate(
+      entry.mode === "time-limit" ? "timeLimitTarget" : "exerciseCountTarget",
+      entry.mode === "time-limit" ? { minutes: entry.target } : { count: entry.target },
+    );
+    details.append(learnerName, score, accuracy, target);
+    item.append(rankLabel, details);
+    leaderboardList.append(item);
+  });
+}
+
 function stopSession(expired = false, stoppedAt = performance.now()) {
   if (!sessionActive) return;
 
@@ -633,6 +730,24 @@ function stopSession(expired = false, stoppedAt = performance.now()) {
     finishCurrentExercise(false, endTime);
   } else {
     currentExercise = null;
+  }
+
+  const entry = createLeaderboardEntry({
+    mode: activePracticeMode,
+    target: activePracticeTarget,
+    results,
+    elapsedMilliseconds: sessionElapsed,
+    name: username,
+  });
+  if (entry) {
+    leaderboards = addLeaderboardEntry(leaderboards, entry);
+    try {
+      storeLeaderboards(leaderboards);
+      leaderboardStorageAvailable = true;
+    } catch {
+      leaderboardStorageAvailable = false;
+    }
+    updateLeaderboardStorageWarning();
   }
 
   setPracticeVisible(false);
@@ -777,6 +892,30 @@ resultsDialog.addEventListener("close", () => {
   settingsCollapsed = false;
   updateSessionControls();
 });
+highScoresButton.addEventListener("click", () => {
+  renderLeaderboard();
+  leaderboardDialog.showModal();
+});
+leaderboardCloseButton.addEventListener("click", () => leaderboardDialog.close());
+closeLeaderboardButton.addEventListener("click", () => leaderboardDialog.close());
+leaderboardInfoButton.addEventListener("click", () => {
+  const expanded = leaderboardInfoButton.getAttribute("aria-expanded") !== "true";
+  leaderboardInfoButton.setAttribute("aria-expanded", String(expanded));
+  leaderboardInfo.hidden = !expanded;
+});
+leaderboardTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => selectLeaderboardMode(tab.dataset.leaderboardMode));
+  tab.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const nextIndex = (index + (event.key === "ArrowRight" ? 1 : -1) + leaderboardTabs.length)
+      % leaderboardTabs.length;
+    selectLeaderboardMode(leaderboardTabs[nextIndex].dataset.leaderboardMode, true);
+  });
+});
+leaderboardDialog.addEventListener("click", (event) => {
+  if (event.target === leaderboardDialog) leaderboardDialog.close();
+});
 usernameForm.addEventListener("submit", (event) => {
   event.preventDefault();
   saveUsername(usernameInput.value);
@@ -860,3 +999,9 @@ updateSessionControls();
 updateScore();
 loadLanguage();
 loadUsername();
+try {
+  leaderboards = getStoredLeaderboards();
+} catch {
+  leaderboardStorageAvailable = false;
+}
+updateLeaderboardStorageWarning();

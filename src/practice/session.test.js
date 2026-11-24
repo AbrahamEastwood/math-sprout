@@ -9,6 +9,12 @@ import {
   shouldEndSession,
   TIME_LIMIT_TARGETS_MINUTES,
 } from "./session.js";
+import {
+  addLeaderboardEntry,
+  createLeaderboardEntry,
+  LEADERBOARD_LIMIT,
+  rankLeaderboardEntries,
+} from "./leaderboard.js";
 
 describe("practice modes", () => {
   it("accepts only the supported targets, and no target for free-form", () => {
@@ -81,5 +87,85 @@ describe("session score", () => {
     expect(hasExerciseResult(unanswered)).toBe(false);
     expect(getSessionScore(results, unanswered)).toEqual({ correct: 1, total: 2 });
     expect(getSessionScore(results, answeredCorrectly)).toEqual({ correct: 2, total: 3 });
+  });
+});
+
+describe("local leaderboards", () => {
+  it("only creates entries for completed bounded sessions with recorded exercises", () => {
+    const results = [{ isCorrect: true }, { isCorrect: false }];
+    expect(createLeaderboardEntry({
+      mode: "free-form",
+      target: null,
+      results,
+      elapsedMilliseconds: 60_000,
+      name: "Ada",
+    })).toBeNull();
+    expect(createLeaderboardEntry({
+      mode: "time-limit",
+      target: 1,
+      results,
+      elapsedMilliseconds: 59_999,
+      name: "Ada",
+    })).toBeNull();
+    expect(createLeaderboardEntry({
+      mode: "exercise-count",
+      target: 10,
+      results: [],
+      elapsedMilliseconds: 60_000,
+      name: "Ada",
+    })).toBeNull();
+
+    const fixedResults = Array.from({ length: 10 }, (_, index) => ({
+      isCorrect: index === 0,
+    }));
+    expect(createLeaderboardEntry({
+      mode: "exercise-count",
+      target: 10,
+      results: fixedResults,
+      elapsedMilliseconds: 120_000,
+      name: "  ",
+    })).toEqual({
+      name: "Anonymous",
+      correct: 1,
+      total: 10,
+      accuracy: 0.1,
+      target: 10,
+      mode: "exercise-count",
+      elapsedMilliseconds: 120_000,
+    });
+  });
+
+  it("ranks by correct answers per minute, then accuracy, keeping earlier exact ties first", () => {
+    const entries = [
+      { name: "Earlier", correct: 5, total: 10, accuracy: 0.5, elapsedMilliseconds: 60_000 },
+      { name: "Higher accuracy", correct: 10, total: 10, accuracy: 1, elapsedMilliseconds: 120_000 },
+      { name: "Faster", correct: 6, total: 10, accuracy: 0.6, elapsedMilliseconds: 60_000 },
+      { name: "Exact tie", correct: 5, total: 10, accuracy: 0.5, elapsedMilliseconds: 60_000 },
+    ];
+
+    expect(rankLeaderboardEntries(entries).map(({ name }) => name)).toEqual([
+      "Faster",
+      "Higher accuracy",
+      "Earlier",
+      "Exact tie",
+    ]);
+  });
+
+  it("retains no more than the highest-ranked 20 results", () => {
+    const leaderboards = { "time-limit": [], "exercise-count": [] };
+    const updated = Array.from({ length: LEADERBOARD_LIMIT + 1 }, (_, index) => index)
+      .reduce((current, index) => addLeaderboardEntry(current, {
+        name: `Learner ${index}`,
+        correct: index,
+        total: LEADERBOARD_LIMIT,
+        accuracy: index / LEADERBOARD_LIMIT,
+        target: 1,
+        mode: "time-limit",
+        elapsedMilliseconds: 60_000,
+      }), leaderboards);
+
+    expect(updated["time-limit"]).toHaveLength(LEADERBOARD_LIMIT);
+    expect(updated["time-limit"][0].name).toBe(`Learner ${LEADERBOARD_LIMIT}`);
+    expect(updated["time-limit"].at(-1).name).toBe("Learner 1");
   });
 });
