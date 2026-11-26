@@ -675,12 +675,12 @@ h1 {
   transition: transform 120ms ease;
 }
 
-.table-option input:checked + .table-switch,
+input:checked + .table-switch,
 .operation-option input:checked ~ .operation-switch {
   background: var(--primary);
 }
 
-.table-option input:checked + .table-switch::after,
+input:checked + .table-switch::after,
 .operation-option input:checked ~ .operation-switch::after {
   transform: translateX(14px);
 }
@@ -1073,10 +1073,15 @@ button:disabled {
 }
 
 .mistakes-filter input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--primary);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.mistakes-filter input:focus-visible + .table-switch {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .results-list {
