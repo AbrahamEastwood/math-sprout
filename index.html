@@ -47,6 +47,7 @@
         >
           <img class="language-flag language-flag-hidden" data-selected-language-flag="en" src="assets/flags/uk.png" alt="" />
           <img class="language-flag" data-selected-language-flag="nl-BE" src="assets/flags/belgium.png" alt="" />
+          <img class="language-flag language-flag-hidden" data-selected-language-flag="de" src="assets/flags/germany.png" alt="" />
           <span id="selected-language">Nederlands</span>
           <span class="language-chevron" aria-hidden="true">⌄</span>
         </button>
@@ -58,6 +59,10 @@
           <button class="language-option" type="button" data-language="nl-BE" aria-pressed="true">
             <img class="language-flag" src="assets/flags/belgium.png" alt="" />
             <span data-i18n="dutchLanguage">Nederlands</span>
+          </button>
+          <button class="language-option" type="button" data-language="de" aria-pressed="false">
+            <img class="language-flag" src="assets/flags/germany.png" alt="" />
+            <span data-i18n="germanLanguage">Duits</span>
           </button>
         </div>
         <button
@@ -425,7 +430,8 @@
             <p class="results-score" id="results-score">Score: 0 / 0</p>
           </div>
           <label class="mistakes-filter">
-            <input id="mistakes-only" type="checkbox" />
+            <input id="mistakes-only" type="checkbox" role="switch" checked />
+            <span class="table-switch" aria-hidden="true"></span>
             <span data-i18n="showMistakesOnly">Show mistakes only</span>
           </label>
         </div>
