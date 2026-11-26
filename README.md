@@ -33,7 +33,7 @@ Contributions are welcome! Start with the [open issues](https://github.com/Abrah
 
 ## Deployment
 
-The app is published with GitHub Pages. The repository’s deployment workflow builds and tests the app when changes are pushed to `master`.
+The app is published with GitHub Pages. The repository follows Gitflow: `master` holds production releases, while `develop` is the integration branch. GitHub Pages deploys changes pushed to `master`; pull requests targeting either long-lived branch run the Build workflow. See [CONTRIBUTING.md](CONTRIBUTING.md) for the feature, release, and hotfix process.
 
 ## License
 
