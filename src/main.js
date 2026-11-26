@@ -757,7 +757,7 @@ function stopSession(expired = false, stoppedAt = performance.now()) {
   updateSessionControls();
   updateScore();
   updateTimer();
-  mistakesOnlyCheckbox.checked = false;
+  mistakesOnlyCheckbox.checked = mistakesOnlyCheckbox.defaultChecked;
   renderResults();
   resultsDialog.showModal();
 }
