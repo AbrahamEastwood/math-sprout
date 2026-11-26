@@ -41,6 +41,7 @@ describe("browser storage helpers", () => {
   it("only returns supported saved languages", () => {
     expect(getStoredLanguage(createStorage({ "math-sprout.language": "en" }))).toBe("en");
     expect(getStoredLanguage(createStorage({ "math-sprout.language": "nl-BE" }))).toBe("nl-BE");
+    expect(getStoredLanguage(createStorage({ "math-sprout.language": "de" }))).toBe("de");
     expect(getStoredLanguage(createStorage({ "math-sprout.language": "fr" }))).toBeNull();
   });
 

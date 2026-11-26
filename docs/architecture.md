@@ -18,7 +18,7 @@ flowchart TD
     LEADERBOARD[src/practice/leaderboard.js: ranking and eligibility]
     RESULTS[src/ui/results.js: result filtering, summaries, rendering]
     STORAGE[src/storage.js: localStorage helpers]
-    I18N[src/translations.js: English and Belgian Dutch strings]
+    I18N[src/translations.js: English, Belgian Dutch, and German strings]
     BROWSER[Browser APIs: DOM, dialogs, timers, performance clock]
     LOCAL[Browser localStorage]
     PAGES[GitHub Pages static deployment]
@@ -57,7 +57,7 @@ flowchart TD
 | `src/practice/leaderboard.js` | Pure helpers for leaderboard eligibility, stable ranking, and top-20 retention. |
 | `src/ui/results.js` | Pure result-list selection and average calculation, plus DOM rendering of the results dialog. |
 | `src/storage.js` | Small helpers for reading and writing local preferences and the exercise selection. |
-| `src/translations.js` | English and Belgian Dutch message dictionaries. |
+| `src/translations.js` | English, Belgian Dutch, and German message dictionaries. |
 | `src/style.css` | Visual system, responsive layout, and theme styling driven by document data attributes and CSS variables. |
 | `*.test.js` beside source modules | Vitest tests for operation generation, session calculations, storage helpers, translations, and results helpers. |
 
@@ -88,7 +88,7 @@ Because the page uses JavaScript ES modules, use the Vite development server for
 - The app is a single-page experience with a single main orchestration module; it is not currently divided into a component framework or a formal state-management layer.
 - The username, language, theme, and exercise selection are persisted locally. Exercise settings are not keyed by username. Changes to progress tracking, accounts, or cross-device synchronization would require an explicit data and privacy design rather than extending the current preference storage implicitly.
 - The four operation types and the current settings are implemented directly in the page and operation definitions. New exercise formats may need a broader exercise model, but that is not present today.
-- The app targets touch-friendly phone and tablet use and includes English and Belgian Dutch UI strings. Keep labels and accessibility attributes in sync when changing controls.
+- The app targets touch-friendly phone and tablet use and includes English, Belgian Dutch, and German UI strings. Keep labels and accessibility attributes in sync when changing controls.
 
 ## Keeping this document useful
 

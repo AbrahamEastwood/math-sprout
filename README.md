@@ -1,6 +1,6 @@
 # Math Sprout
 
-Math Sprout is a friendly, phone- and tablet-ready maths practice app for children. It offers addition, subtraction, multiplication, and division practice in English and Belgian Dutch, with no account or backend.
+Math Sprout is a friendly, phone- and tablet-ready maths practice app for children. It offers addition, subtraction, multiplication, and division practice in English, Belgian Dutch, and German, with no account or backend.
 
 **Try it:** [abrahameastwood.github.io/math-sprout](https://abrahameastwood.github.io/math-sprout/)
 

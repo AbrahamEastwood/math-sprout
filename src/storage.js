@@ -4,6 +4,8 @@ import {
   TIME_LIMIT_TARGETS_MINUTES,
 } from "./practice/session.js";
 
+import { translations } from "./translations.js";
+
 const storageKeys = {
   theme: "math-sprout.theme",
   username: "math-sprout.username",
@@ -93,7 +95,7 @@ export function storeLanguage(language, storage = localStorage) {
 
 export function getStoredLanguage(storage = localStorage) {
   const language = storage.getItem(storageKeys.language);
-  return language === "en" || language === "nl-BE" ? language : null;
+  return Object.hasOwn(translations, language) ? language : null;
 }
 
 export function storeUsername(username, storage = localStorage) {
