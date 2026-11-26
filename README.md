@@ -29,7 +29,7 @@ npm run build
 
 ## Contributing
 
-Contributions are welcome! Start with the [open issues](../../issues), or open an issue to discuss a larger change before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local setup and pull request checklist.
+Contributions are welcome! Start with the [open issues](https://github.com/AbrahamEastwood/math-sprout/issues?q=is%3Aissue+state%3Aopen+no%3Aassignee), or open an issue to discuss a larger change before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local setup and pull request checklist.
 
 ## Deployment
 
