@@ -14,7 +14,7 @@ const storageKeys = {
   leaderboards: "math-sprout.leaderboards",
 };
 
-const operationKeys = ["addition", "subtraction", "multiplication", "division"];
+const operationKeys = ["fraction", "addition", "subtraction", "multiplication", "division"];
 const tableNumbers = Array.from({ length: 12 }, (_, index) => index + 1);
 const emptyLeaderboards = () => ({ "time-limit": [], "exercise-count": [] });
 
