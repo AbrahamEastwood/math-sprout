@@ -368,6 +368,9 @@ function saveExerciseSelection() {
 }
 
 function settingsForOperation(operationKey) {
+  if (operationKey === "fraction") {
+    return {};
+  }
   if (operationKey === "multiplication" || operationKey === "division") {
     return { tables: selectedTables(operationKey) };
   }
@@ -377,6 +380,9 @@ function settingsForOperation(operationKey) {
 }
 
 function operationSettingsAreValid(operationKey) {
+  if (operationKey === "fraction") {
+    return true;
+  }
   if (operationKey === "multiplication" || operationKey === "division") {
     return selectedTables(operationKey).length > 0;
   }
@@ -543,9 +549,15 @@ function createQuestion() {
   const selected = selectedOperations();
   const operationKey = randomChoice(selected);
   const selectedOperation = operations[operationKey];
-  const [firstNumber, secondNumber] = selectedOperation.makeNumbers(settingsForOperation(operationKey));
-  const expectedAnswer = selectedOperation.calculate(firstNumber, secondNumber);
-  const question = `${firstNumber} ${selectedOperation.symbol} ${secondNumber}`;
+  const numbers = selectedOperation.makeNumbers(settingsForOperation(operationKey));
+  const expectedAnswer = selectedOperation.calculate(...numbers);
+  const question = operationKey === "fraction"
+    ? translate("fractionQuestion", {
+        numerator: numbers[0],
+        denominator: numbers[1],
+        wholeNumber: numbers[2],
+      })
+    : `${numbers[0]} ${selectedOperation.symbol} ${numbers[1]}`;
 
   currentExercise = {
     question,
@@ -555,7 +567,7 @@ function createQuestion() {
     startedAt: performance.now(),
   };
   answerInput.value = "";
-  questionText.textContent = `${question} = ?`;
+  questionText.textContent = operationKey === "fraction" ? question : `${question} = ?`;
   checkLabel.textContent = translate("checkAnswer");
   clearFeedback();
   answerInput.focus({ preventScroll: true });
@@ -777,10 +789,24 @@ answerForm.addEventListener("submit", (event) => {
   }
 
   const answer = Number(value);
-  currentExercise.firstAnswer = answer;
-  currentExercise.isCorrect = answer === currentExercise.correctAnswer;
-  const isCorrect = currentExercise.isCorrect;
-  showAnswerFeedback(isCorrect);
+  const isRetry = currentExercise.firstAnswer !== null;
+  const answerIsCorrect = answer === currentExercise.correctAnswer;
+  if (!isRetry) {
+    currentExercise.firstAnswer = answer;
+  }
+  currentExercise.isCorrect = !isRetry && answerIsCorrect;
+  showAnswerFeedback(answerIsCorrect);
+  if (!answerIsCorrect) {
+    answerInput.value = "";
+    setFeedback(
+      "incorrectFeedback",
+      { name: username ? `, ${username}` : "" },
+      "feedback feedback-try-again",
+    );
+    updateScore();
+    answerInput.focus({ preventScroll: true });
+    return;
+  }
   finishCurrentExercise(false);
   if (shouldEndActiveSession()) {
     stopSession();
@@ -788,9 +814,9 @@ answerForm.addEventListener("submit", (event) => {
   }
   createQuestion();
   setFeedback(
-    isCorrect ? "correctFeedback" : "incorrectFeedback",
+    answerIsCorrect ? "correctFeedback" : "incorrectFeedback",
     { name: username ? `, ${username}` : "" },
-    `feedback ${isCorrect ? "feedback-correct" : "feedback-try-again"}`,
+    `feedback ${answerIsCorrect ? "feedback-correct" : "feedback-try-again"}`,
   );
   updateScore();
 });

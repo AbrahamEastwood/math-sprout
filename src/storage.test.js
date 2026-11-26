@@ -12,7 +12,7 @@ import {
 } from "./storage.js";
 
 const exerciseSelection = {
-  selectedOperations: ["addition", "multiplication"],
+  selectedOperations: ["fraction", "addition", "multiplication"],
   addition: { maxLeft: 20, maxRight: 30, maxResult: 50 },
   subtraction: { maxLeft: 10, maxRight: 10, maxResult: 10 },
   multiplicationTables: [2, 5, 12],

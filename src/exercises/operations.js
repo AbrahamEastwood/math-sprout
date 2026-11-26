@@ -11,6 +11,20 @@ export function randomChoice(values, random = Math.random) {
 }
 
 export const operations = {
+  fraction: {
+    makeNumbers({}, random = Math.random) {
+      const denominator = randomNumberBetween(2, 12, random);
+      const numerator = randomNumberBetween(1, denominator - 1, random);
+      const quotient = randomNumber(10, random);
+      return [numerator, denominator, denominator * quotient];
+    },
+    calculate(numerator, denominator, wholeNumber) {
+      return wholeNumber / denominator * numerator;
+    },
+    formatQuestion(numerator, denominator, wholeNumber) {
+      return `What is ${numerator}/${denominator} of ${wholeNumber}?`;
+    },
+  },
   addition: {
     symbol: "+",
     makeNumbers({ maxResult, maxLeft, maxRight }, random = Math.random) {

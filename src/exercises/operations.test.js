@@ -21,6 +21,16 @@ describe("random helpers", () => {
 });
 
 describe("exercise operations", () => {
+  it("generates proper fractions of whole numbers with exact answers", () => {
+    expect(operations.fraction.calculate(3, 4, 12)).toBe(9);
+    expect(operations.fraction.calculate(2, 8, 24)).toBe(6);
+    expect(operations.fraction.formatQuestion(3, 4, 12)).toBe("What is 3/4 of 12?");
+
+    const numbers = operations.fraction.makeNumbers({}, () => 0.999);
+    expect(numbers).toEqual([11, 12, 120]);
+    expect(operations.fraction.calculate(...numbers)).toBe(110);
+  });
+
   it("keeps addition operands within their limits and the sum under maxResult", () => {
     const numbers = operations.addition.makeNumbers(
       { maxResult: 20, maxLeft: 10, maxRight: 10 },
