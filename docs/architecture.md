@@ -76,8 +76,10 @@ flowchart TD
 - `npm run dev` starts the Vite development server.
 - `npm run build` creates the static production site in `dist`.
 - `npm run preview` serves the production build locally.
-- `.github/workflows/build.yml` runs tests and a production build on pull requests and pushes to `master`.
+- `.github/workflows/build.yml` runs tests and a production build on pull requests and pushes to `master` and `develop`; pull requests into `master` must come from `release/*` or `hotfix/*` branches.
 - `.github/workflows/deploy.yml` builds and tests the app, then deploys the static build to GitHub Pages on pushes to `master` or manual dispatch.
+- The repository follows Gitflow: `master` is the production branch, `develop` is the integration branch, and feature, release, and hotfix branch conventions are documented in `CONTRIBUTING.md`.
+- `.github/CODEOWNERS` assigns repository ownership to the repository owner; the active branch ruleset requires Build checks and, where this file exists on the target branch, code-owner approval on `master` and `develop`.
 - `vite.config.js` uses a relative base path so the built site can be served from a GitHub Pages project path.
 
 Because the page uses JavaScript ES modules, use the Vite development server for reliable local development rather than relying on a browser's `file://` behavior.
