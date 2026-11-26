@@ -1,6 +1,6 @@
 # Math Sprout
 
-Math Sprout is a friendly, phone- and tablet-ready maths practice app for children. It offers addition, subtraction, multiplication, and division practice in English and Belgian Dutch, with no account or backend.
+Math Sprout is a friendly, phone- and tablet-ready maths practice app for children. It offers addition, subtraction, multiplication, and division practice in English, Belgian Dutch, and German, with no account or backend.
 
 **Try it:** [abrahameastwood.github.io/math-sprout](https://abrahameastwood.github.io/math-sprout/)
 
@@ -29,7 +29,7 @@ npm run build
 
 ## Contributing
 
-Contributions are welcome! Start with the [open issues](../../issues), or open an issue to discuss a larger change before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local setup and pull request checklist.
+Contributions are welcome! Start with the [open issues](https://github.com/AbrahamEastwood/math-sprout/issues?q=is%3Aissue+state%3Aopen+no%3Aassignee), or open an issue to discuss a larger change before starting work. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local setup and pull request checklist.
 
 ## Deployment
 

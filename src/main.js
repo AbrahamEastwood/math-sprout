@@ -196,12 +196,13 @@ function setFeedback(key, values = {}, className = "feedback") {
 }
 
 function updateLanguagePicker() {
-  selectedLanguage.textContent = translate(language === "en" ? "englishLanguage" : "dutchLanguage");
   selectedLanguageFlags.forEach((flag) => {
     flag.classList.toggle("language-flag-hidden", flag.dataset.selectedLanguageFlag !== language);
   });
   languageOptions.forEach((option) => {
-    option.setAttribute("aria-pressed", String(option.dataset.language === language));
+    const selected = option.dataset.language === language;
+    option.setAttribute("aria-pressed", String(selected));
+    if (selected) selectedLanguage.textContent = option.textContent.trim();
   });
 }
 
@@ -283,7 +284,7 @@ function closeLanguageMenu(restoreFocus = false) {
 }
 
 function setLanguage(value, persist = true) {
-  language = value === "nl-BE" ? "nl-BE" : "en";
+  language = Object.hasOwn(translations, value) ? value : "en";
   applyTranslations();
   closeLanguageMenu(true);
   if (persist) {
