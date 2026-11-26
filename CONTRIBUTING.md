@@ -2,6 +2,30 @@
 
 Thanks for your interest in improving Math Sprout! Bug fixes, accessibility improvements, translations, tests, and thoughtful feature ideas are welcome.
 
+## Git workflow
+
+Math Sprout uses Gitflow, with `master` as the production branch and `develop` as the integration branch. Create feature and release branches from `develop`; create hotfix branches from `master`.
+
+### Features
+
+```sh
+git switch develop
+git pull
+git switch -c feature/short-description
+```
+
+Open a pull request from `feature/short-description` into `develop`. Once reviewed and the Build checks pass, merge the pull request and delete the feature branch.
+
+### Releases
+
+When `develop` is ready for a release, create `release/<version>` from it, for example `release/1.2.0`. Only release-preparation fixes should go into this branch. Open a pull request into `master`; after it is merged, create a version tag such as `v1.2.0` on `master`. Merge the release branch back into `develop` so any release fixes are included in future work, then delete the release branch.
+
+### Hotfixes
+
+Create `hotfix/<short-description>` from `master` for an urgent production fix. Open pull requests into both `master` and `develop` (and any active release branch). After merging into `master`, tag the new production version, then delete the hotfix branch.
+
+The Build workflow checks pull requests and pushes on `master` and `develop`. GitHub Pages deploys only from `master`. Repository maintainers should protect both long-lived branches with rules that require pull requests and passing Build checks; branch protection is configured in GitHub, not in this repository.
+
 ## Get started
 
 1. Fork the repository and clone your fork.
